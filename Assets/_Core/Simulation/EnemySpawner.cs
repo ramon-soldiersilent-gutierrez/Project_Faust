@@ -36,6 +36,7 @@ namespace Faust.Simulation
             // Calculate a point on that circle around the player
             Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * SpawnRadius;
             Vector3 spawnPos = PlayerTransform.position + offset;
+            spawnPos.y = 0.5f; // Force enemies to stay on the floor plane
             
             SimulationManager.Instance.SpawnEnemy(spawnPos, BaseEnemyHealth, BaseEnemySpeed);
         }

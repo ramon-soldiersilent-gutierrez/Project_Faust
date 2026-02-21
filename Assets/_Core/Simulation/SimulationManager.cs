@@ -43,6 +43,8 @@ namespace Faust.Simulation
                 go.name = $"Projectile_{i}";
                 go.transform.SetParent(projRoot);
                 go.transform.localScale = Vector3.one * 0.25f;
+                // Center Y-axis for collisions
+                go.transform.position = new Vector3(0, 0.5f, 0); 
                 // Remove collider to save performance, using distance checks
                 Destroy(go.GetComponent<Collider>());
                 go.SetActive(false);
@@ -56,6 +58,15 @@ namespace Faust.Simulation
                 go.name = $"Enemy_{i}";
                 go.transform.SetParent(enemyRoot);
                 go.transform.localScale = Vector3.one;
+                
+                // Set cube visual to red
+                var renderer = go.GetComponent<MeshRenderer>();
+                if (renderer != null)
+                {
+                    renderer.material.color = Color.red;
+                }
+                
+                go.transform.position = new Vector3(0, 0.5f, 0);
                 Destroy(go.GetComponent<Collider>());
                 go.SetActive(false);
                 _enemyPool.Enqueue(go.transform);
@@ -188,8 +199,11 @@ namespace Faust.Simulation
             switch (context.ExecutionShape)
             {
                 case SkillShape.Projectile:
-                    Vector3 spawnPos = PlayerTransform != null ? PlayerTransform.position + Vector3.up * 0.5f : Vector3.zero;
+                    // Force the spawn Y position to closely match enemies (y=0.5) so distance checks don't fail
+                    Vector3 spawnPos = PlayerTransform != null ? new Vector3(PlayerTransform.position.x, 0.5f, PlayerTransform.position.z) : new Vector3(0, 0.5f, 0);
                     Vector3 forward = PlayerTransform != null ? PlayerTransform.forward : Vector3.forward;
+                    forward.y = 0; // Ensure horizontal travel
+                    forward.Normalize();
 
                     for (int i = 0; i < pCount; i++)
                     {
