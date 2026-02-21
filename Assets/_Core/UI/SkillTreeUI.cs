@@ -25,6 +25,28 @@ namespace Faust.UI
             Instance = this;
         }
 
+        private void Start()
+        {
+            // Auto generate on game start
+            SimulateGenerateTree();
+        }
+
+        private void OnEnable()
+        {
+            CombatEventBus.OnLevelUp += HandleLevelUp;
+        }
+
+        private void OnDisable()
+        {
+            CombatEventBus.OnLevelUp -= HandleLevelUp;
+        }
+
+        private void HandleLevelUp(int level, int availablePoints)
+        {
+            // Auto generate next chunk
+            if (level > 1) SimulateGenerateTree();
+        }
+
         public void LoadChunk(SkillTreeChunk chunk)
         {
             _currentChunk = chunk;
@@ -85,11 +107,7 @@ namespace Faust.UI
             if (_currentChunk == null)
             {
                 GUILayout.BeginArea(GetTreeRect(), "Faustian Tree", GUI.skin.window);
-                GUILayout.Label("Skill Tree Empty.\nGenerate a tree to behold the Faustian Web.", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter });
-                if (GUILayout.Button("Simulate Skill Tree Generation", GUILayout.Height(40)))
-                {
-                    SimulateGenerateTree();
-                }
+                GUILayout.Label("Communing with the void...\nGenerating Faustian Web...", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter });
                 GUILayout.EndArea();
                 return;
             }

@@ -99,7 +99,7 @@ namespace Faust.AI
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
-                request.timeout = timeoutSeconds;
+                request.timeout = 0; // 0 disables the timeout entirely
 
                 var operation = request.SendWebRequest();
 
