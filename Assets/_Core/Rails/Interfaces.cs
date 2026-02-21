@@ -17,6 +17,7 @@ namespace Faust.Rails
     public interface ISimulationAPI
     {
         void ExecuteSkill(in AbilityContext context);
+        void SpawnProjectile(in AbilityContext context, Vector3 position, Vector3 direction);
     }
 
     public interface IDemoAPI
