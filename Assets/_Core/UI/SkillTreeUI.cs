@@ -9,7 +9,7 @@ namespace Faust.UI
     {
         public static SkillTreeUI Instance { get; private set; }
 
-        [Header("IMGUI Settings")]
+        // IMGUI Settings
         private Rect GetTreeRect() => new Rect(Screen.width - 410f, 50f, 400, 400);
         public float NodeSpacing = 60f;
         public float NodeSize = 40f;

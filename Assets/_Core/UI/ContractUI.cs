@@ -8,7 +8,7 @@ namespace Faust.UI
     {
         public static ContractUI Instance { get; private set; }
 
-        [Header("IMGUI Settings")]
+        // IMGUI Settings
         private Rect GetUIRect() => new Rect(Screen.width / 2f - 150f, 10, 300, 200);
         private Rect GetInventoryRect() => new Rect(Screen.width / 2f - 150f, 220, 300, 120);
 
