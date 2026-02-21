@@ -74,60 +74,56 @@ namespace Faust.AI
 
         private string BuildContractSystemPrompt(string wish, float greed)
         {
-            return $$"""
-            You are the Faustian Contract Generator.
-            The player's wish is '{{wish}}'. Their greed tier is {{greed}} / 100.
-            You must return only raw JSON matching this literal schema exactly without any markdown tags:
-            {
-              "itemName": "string",
-              "flavorText": "string",
-              "equipSlot": "Weapon"|"Armor"|"Accessory",
-              "spriteKeyword": "[Type]_[Theme]",
-              "skillPref": "Kinetic_Projectile" or "Kinetic_Sweep",
-              "tags": ["Fire","Projectile","Melee","Speed","Self"],
-              "boons": [{ "id": "Boon_DamageSpike" or "Boon_MachineGun" or "Boon_Multicast" or "Boon_Vampiric", "magnitude": 1.0 }],
-              "curses": [{ "id": "Curse_TeleportOnHit" or "Curse_GlassCannon" or "Curse_SelfDamage" or "Curse_Rooted", "magnitude": 1.0 }],
-              "damageModifier": 1.0,
-              "speedModifier": 1.0,
-              "sizeModifier": 1.0
-            }
-            """;
+            return $@"You are the Faustian Contract Generator.
+The player's wish is '{wish}'. Their greed tier is {greed} / 100.
+You must return only raw JSON matching this literal schema exactly without any markdown tags:
+{{
+  ""itemName"": ""string"",
+  ""flavorText"": ""string"",
+  ""equipSlot"": ""Weapon""|""Armor""|""Accessory"",
+  ""spriteKeyword"": ""[Type]_[Theme]"",
+  ""skillPref"": ""Kinetic_Projectile"" or ""Kinetic_Sweep"",
+  ""tags"": [""Fire"",""Projectile"",""Melee"",""Speed"",""Self""],
+  ""boons"": [{{ ""id"": ""Boon_DamageSpike"" or ""Boon_MachineGun"" or ""Boon_Multicast"" or ""Boon_Vampiric"", ""magnitude"": 1.0 }}],
+  ""curses"": [{{ ""id"": ""Curse_TeleportOnHit"" or ""Curse_GlassCannon"" or ""Curse_SelfDamage"" or ""Curse_Rooted"", ""magnitude"": 1.0 }}],
+  ""damageModifier"": 1.0,
+  ""speedModifier"": 1.0,
+  ""sizeModifier"": 1.0
+}}";
         }
 
         private string BuildSkillTreeSystemPrompt(int playerLevel, string currentSkills, string theme)
         {
-            return $$"""
-            You are the Faustian Forge. Generate a new 2D web of Skill Tree Nodes.
-            Mortal's Current Level: {{playerLevel}}
-            Mortal's Equipped Skills: {{currentSkills}}
-            Mortal's Theme Preference: "{{theme}}"
+            return $@"You are the Faustian Forge. Generate a new 2D web of Skill Tree Nodes.
+Mortal's Current Level: {playerLevel}
+Mortal's Equipped Skills: {currentSkills}
+Mortal's Theme Preference: ""{theme}""
 
-            Rules:
-            1. Generate 15-30 nodes. Node 0 is at (0,0).
-            2. Every node MUST have at least 1 `connectedNodeIDs`.
-            3. 20% MUST be `isKeystone`: true, and grant 1-2 boons and 1-2 curses.
-            Respond ONLY with valid JSON matching this schema:
-            {
-              "chunkName": "string",
-              "theme": "string",
-              "nodes": [
-                {
-                  "nodeID": "string",
-                  "displayName": "string",
-                  "flavorText": "string",
-                  "connectedNodeIDs": ["string"],
-                  "gridX": 0,
-                  "gridY": 0,
-                  "isKeystone": false,
-                  "grantedBoons": [{ "id": "string", "magnitude": 1.0 }],
-                  "grantedCurses": [{ "id": "string", "magnitude": 1.0 }],
-                  "damageDelta": 0.05,
-                  "speedDelta": 0.05,
-                  "sizeDelta": 0.0
-                }
-              ]
-            }
-            """;
+Rules:
+1. Generate 15-30 nodes. Node 0 is at (0,0).
+2. Every node MUST have at least 1 `connectedNodeIDs`.
+3. 20% MUST be `isKeystone`: true, and grant 1-2 boons and 1-2 curses.
+Respond ONLY with valid JSON matching this schema:
+{{
+  ""chunkName"": ""string"",
+  ""theme"": ""string"",
+  ""nodes"": [
+    {{
+      ""nodeID"": ""string"",
+      ""displayName"": ""string"",
+      ""flavorText"": ""string"",
+      ""connectedNodeIDs"": [""string""],
+      ""gridX"": 0,
+      ""gridY"": 0,
+      ""isKeystone"": false,
+      ""grantedBoons"": [{{ ""id"": ""string"", ""magnitude"": 1.0 }}],
+      ""grantedCurses"": [{{ ""id"": ""string"", ""magnitude"": 1.0 }}],
+      ""damageDelta"": 0.05,
+      ""speedDelta"": 0.05,
+      ""sizeDelta"": 0.0
+    }}
+  ]
+}}";
         }
 
         public void Log(string message) => Debug.Log($"[AI] {message}");
