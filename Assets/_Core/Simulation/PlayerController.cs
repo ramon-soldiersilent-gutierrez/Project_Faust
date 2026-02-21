@@ -15,11 +15,19 @@ namespace Faust.Simulation
         public float BaseProjectileSpeed = 20f;
         public int BaseProjectileCount = 1;
 
+        public static PlayerController Instance { get; private set; }
+
         private Camera _mainCamera;
         private Plane _groundPlane = new Plane(Vector3.up, Vector3.zero);
+        
+        [HideInInspector]
+        public bool IsRooted = false;
 
         private void Awake()
         {
+            if (Instance == null) Instance = this;
+            else Destroy(gameObject);
+
             _mainCamera = Camera.main;
             CurrentHealth = MaxHealth;
         }
@@ -43,6 +51,8 @@ namespace Faust.Simulation
 
         private void HandleMovement()
         {
+            if (IsRooted) return;
+
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
 
@@ -89,13 +99,21 @@ namespace Faust.Simulation
 
         private void HandlePlayerDamaged(float amount)
         {
-            CurrentHealth -= amount;
-            // Debug.Log($"Player took {amount} damage! Health: {CurrentHealth}");
-            
+            TakeDamage(amount);
+        }
+
+        public void TakeDamage(float amount)
+        {
+            CurrentHealth = Mathf.Max(0, CurrentHealth - amount);
             if (CurrentHealth <= 0)
             {
-                // Debug.Log("Player Died!");
+                // Handle Death
             }
+        }
+
+        public void Heal(float amount)
+        {
+            CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + amount);
         }
 
         // Called by DemoAPI (simulated) or externally
@@ -103,6 +121,7 @@ namespace Faust.Simulation
         {
             transform.position = Vector3.zero;
             CurrentHealth = MaxHealth;
+            IsRooted = false;
         }
     }
 }
