@@ -184,6 +184,16 @@ These types are the shared contracts all worktrees plug into. They should be com
   1) Low Greed (speed wish → minor curse)  
   2) High Greed (god damage → self-die curse)
 
+### ⚪ PHASE 7: THE ARPG SHELL (Scope Expansion)
+- **Tracking Camera (Agent A):** The camera rigidly frames the player rather than remaining static.
+- **Inventory System (Agent C & B):** 
+  - `ContractRuntime` must support multiple *Equipped Contracts* (e.g., Weapon, Armor, Ring).
+  - UI for a basic inventory grid or slotting mechanism.
+- **Procedural "Faustian" Skill Tree (Agent D & C):**
+  - AI generates 1-3 new branching nodes on "Level Up".
+  - Nodes grant specific Boons/Curses that act like Path of Exile Keystones.
+  - Basic nodal UI to select and activate these procedurally generated branches.
+
 ---
 
 ## AGENTIC ACCELERATORS (OPTIONAL IF TIME PERMITS)

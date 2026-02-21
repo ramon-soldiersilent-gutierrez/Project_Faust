@@ -20,13 +20,8 @@ namespace Faust.Simulation
         public float BaseProjectileSpeed = 20f;
         public int BaseProjectileCount = 1;
 
-        public static PlayerController Instance { get; private set; }
-
         private Camera _mainCamera;
         private Plane _groundPlane = new Plane(Vector3.up, Vector3.zero);
-        
-        [HideInInspector]
-        public bool IsRooted = false;
 
         private void Awake()
         {
