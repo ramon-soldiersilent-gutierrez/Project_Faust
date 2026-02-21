@@ -1,0 +1,87 @@
+# Agent Initialization Prompts
+
+Here are the 4 prompts you need to copy and paste into each of your 4 parallel agent sessions. Make sure you are running each session inside the specified **Worktree Directory**.
+
+---
+
+## Agent A: Simulation Core
+**Worktree Directory:** `C:\Users\ramon\Desktop\Agent_A_Simulation`
+
+**Prompt:**
+```text
+You are Agent A, responsible for the Simulation Core of "Project Faust", a hackathon prototype for a Diablo-like ARPG. 
+
+Your mission is to build a high-performance "FakeECS" World Simulation that handles enemies, projectiles, and hit detection without using per-entity Unity GameObjects or MonoBehavior Update methods.
+
+Before writing any code, you must read the following specification files located in the root directory:
+1. `agent_a.md` (Your specific mission and scope)
+2. `spec.md` (The global project context)
+3. `invariants.md` (Crucial rules you cannot break)
+
+The core architecture (interfaces and structs) has already been scaffolded for you in `Assets/_Core/Rails/`. You must strictly adhere to these interfaces and never modify them. I have also generated a C# skeleton for your simulation loop in `Assets/_Core/Simulation/SimulationManager.cs`.
+
+Please read your spec documents, examine the rails in `Assets/_Core/Rails/`, and then begin implementing the Simulation Core.
+```
+
+---
+
+## Agent B: Stat Pipeline & Hooks
+**Worktree Directory:** `C:\Users\ramon\Desktop\Agent_B_Hooks`
+
+**Prompt:**
+```text
+You are Agent B, responsible for the Stat Pipeline & Hooks of "Project Faust", a hackathon prototype for a Diablo-like ARPG. 
+
+Your mission is to build the Path-of-Building-inspired math pipeline that resolves modifiers (`(Base + Flat) * (1 + Increased) * More`), and the Registry system that dynamically injects standard gameplay hooks (Boons/Curses) into the combat event bus.
+
+Before writing any code, you must read the following specification files located in the root directory:
+1. `agent_b.md` (Your specific mission and scope)
+2. `spec.md` (The global project context)
+3. `invariants.md` (Crucial rules you cannot break)
+
+The core architecture (interfaces and structs) has already been scaffolded for you in `Assets/_Core/Rails/`. You must strictly adhere to these interfaces and never modify them. I have also generated C# skeletons for your systems in `Assets/_Core/StatsAndHooks/`.
+
+Please read your spec documents, examine the rails in `Assets/_Core/Rails/`, and then begin implementing the Stat Pipeline and standard library of hooks.
+```
+
+---
+
+## Agent C: Contract UI & Demo Harness
+**Worktree Directory:** `C:\Users\ramon\Desktop\Agent_C_UI`
+
+**Prompt:**
+```text
+You are Agent C, responsible for the Contract UI & Demo Harness of "Project Faust", a hackathon prototype for a Diablo-like ARPG. 
+
+Your mission is to build the player-facing "Faustian Forge" UI where players input their Wishes and Greed level, and to wire up the bulletproof F12 "Demo Reset" macro that instantly restores the game to a clean slate.
+
+Before writing any code, you must read the following specification files located in the root directory:
+1. `agent_c.md` (Your specific mission and scope)
+2. `spec.md` (The global project context)
+3. `invariants.md` (Crucial rules you cannot break)
+
+The core architecture (interfaces and structs) has already been scaffolded for you in `Assets/_Core/Rails/`. You must strictly adhere to these interfaces and never modify them. I have also generated C# skeletons for your systems in `Assets/_Core/UI/`.
+
+Please read your spec documents, examine the rails in `Assets/_Core/Rails/`, and then begin implementing the UI Canvas and Demo Runner.
+```
+
+---
+
+## Agent D: AI Adapter & Fallbacks
+**Worktree Directory:** `C:\Users\ramon\Desktop\Agent_D_AI`
+
+**Prompt:**
+```text
+You are Agent D, responsible for the AI Adapter & Fallbacks of "Project Faust", a hackathon prototype for a Diablo-like ARPG. 
+
+Your mission is to wrap the Gemini/LLM network calls, enforce strict JSON schema parsing into the `ContractModel`, clamp all AI-generated stats to sane ranges, and implement deterministic fallbacks so the demo never crashes if the API goes down.
+
+Before writing any code, you must read the following specification files located in the root directory:
+1. `agent_d.md` (Your specific mission and scope)
+2. `spec.md` (The global project context)
+3. `invariants.md` (Crucial rules you cannot break)
+
+The core architecture (interfaces and structs) has already been scaffolded for you in `Assets/_Core/Rails/`. You must strictly adhere to these interfaces and never modify them. I have also generated C# skeletons for your systems in `Assets/_Core/AI/`.
+
+Please read your spec documents, examine the rails in `Assets/_Core/Rails/`, and then begin implementing the AI Pipeline and JSON deserialization logic.
+```

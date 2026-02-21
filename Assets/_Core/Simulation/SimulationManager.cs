@@ -228,6 +228,30 @@ namespace Faust.Simulation
             }
         }
 
+        public void SpawnProjectile(in AbilityContext context, Vector3 position, Vector3 direction)
+        {
+            if (_projectilePool.Count == 0)
+            {
+                Debug.LogWarning("Projectile pool empty!");
+                return;
+            }
+
+            Transform pTrans = _projectilePool.Dequeue();
+            pTrans.position = position;
+            pTrans.gameObject.SetActive(true);
+
+            var pBody = new ProjectileBody
+            {
+                Position = position,
+                Velocity = direction.normalized * context.FinalProjectileSpeed,
+                DistanceTraveled = 0f,
+                Context = context,
+                VisualTransform = pTrans
+            };
+
+            _activeProjectiles.Add(pBody);
+        }
+
         // --- IDemoAPI Implementation ---
         public void ResetAll()
         {

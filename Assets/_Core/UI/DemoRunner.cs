@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Faust.Rails;
+using Faust.StatsAndHooks;
 
 namespace Faust.UI
 {
@@ -32,36 +33,20 @@ namespace Faust.UI
             Time.timeScale = 1f;
 
             // 2. Unsubscribe all active Boons/Curses
-            // HookLifecycleManager.Instance.ClearAllHooks();
+            if (HookLifecycleManager.Instance != null)
+                HookLifecycleManager.Instance.ClearAllHooks();
 
             // 3. Purge all Simulation entities
-            // SimulationManager.Instance.ClearAll();
+            if (Faust.Simulation.SimulationManager.Instance != null)
+                Faust.Simulation.SimulationManager.Instance.ResetAll();
 
             // 4. Restore Player Health/Pos
-            // PlayerContext.Reset();
+            if (Faust.Simulation.PlayerController.Instance != null)
+                Faust.Simulation.PlayerController.Instance.ResetPlayer();
 
             // 5. Clear AI Console
-            // AIConsole.Instance.Clear();
-        }
-    }
-
-    public class ContractUI : MonoBehaviour
-    {
-        // TODO: Wire up text inputs for Wish, Slider for Greed (0-100)
-        
-        public void OnForgeButtonClicked()
-        {
-            // Disable button to prevent spam
-            // string wish = view.GetWishText();
-            // float greed = view.GetGreedSlider();
-
-            // AgentD.Pipeline.RequestContract(wish, greed, OnContractReceived);
-        }
-
-        private void OnContractReceived(ContractModel model)
-        {
-            // Re-enable button
-            // IContractRuntime.ApplyContract(model);
+            if (AIConsole.Instance != null)
+                AIConsole.Instance.Clear();
         }
     }
 }
