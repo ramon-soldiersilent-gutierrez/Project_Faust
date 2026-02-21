@@ -58,10 +58,9 @@ namespace Faust.StatsAndHooks
                 Debug.Log("<color=green>MACHINE GUN BONUS FIRE!</color>");
                 // Note: Getting ISimulationAPI would require dependency injection or a service locator.
                 // Assuming we can find it via FindObjectOfType or similar if it's a MonoBehaviour.
-                var simApi = UnityEngine.Object.FindAnyObjectByType<MonoBehaviour>()?.GetComponent<ISimulationAPI>();
-                if (simApi != null)
+                if (Faust.Simulation.SimulationManager.Instance != null)
                 {
-                    simApi.SpawnProjectile(info.Context, info.Position, info.Direction);
+                    Faust.Simulation.SimulationManager.Instance.SpawnProjectile(info.Context, info.Position, info.Direction);
                 }
             }
         }
@@ -83,15 +82,14 @@ namespace Faust.StatsAndHooks
 
         private void HandleCast(CastInfo info)
         {
-            var simApi = UnityEngine.Object.FindAnyObjectByType<MonoBehaviour>()?.GetComponent<ISimulationAPI>();
-            if (simApi != null)
+            if (Faust.Simulation.SimulationManager.Instance != null)
             {
                 // Fire two additional projectiles at slight angles
                 Vector3 leftDir = Quaternion.Euler(0, -15, 0) * info.Direction;
                 Vector3 rightDir = Quaternion.Euler(0, 15, 0) * info.Direction;
 
-                simApi.SpawnProjectile(info.Context, info.Position, leftDir);
-                simApi.SpawnProjectile(info.Context, info.Position, rightDir);
+                Faust.Simulation.SimulationManager.Instance.SpawnProjectile(info.Context, info.Position, leftDir);
+                Faust.Simulation.SimulationManager.Instance.SpawnProjectile(info.Context, info.Position, rightDir);
             }
         }
     }
