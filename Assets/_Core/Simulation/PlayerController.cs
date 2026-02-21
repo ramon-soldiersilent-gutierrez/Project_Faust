@@ -30,6 +30,12 @@ namespace Faust.Simulation
 
             _mainCamera = Camera.main;
             CurrentHealth = MaxHealth;
+
+            var renderer = GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = Color.green;
+            }
         }
 
         private void OnEnable()
@@ -80,21 +86,31 @@ namespace Faust.Simulation
 
         private void HandleInput()
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                // Fire default projectile skill for Agent A's requirement
-                var ctx = new AbilityContext
-                {
-                    ExecutionShape = SkillShape.Projectile,
-                    FinalDamage = BaseDamage,
-                    FinalProjectileSpeed = BaseProjectileSpeed,
-                    FinalProjectileCount = BaseProjectileCount,
-                    FinalAreaRadius = 1f,
-                    FinalCastTime = 0.1f
-                };
+            // Note: In an actual implementation, these would read equipped AbilityContexts from Agent C (Inventory) or Agent B (Stats)
+            // For Phase 8 Shell Polish, we invoke stubbed casts mapped to 6 action bar slots.
+            
+            if (Input.GetMouseButtonDown(0))      ExecuteSlot(0); // Mouse0
+            else if (Input.GetMouseButtonDown(1)) ExecuteSlot(1); // Mouse1
+            else if (Input.GetKeyDown(KeyCode.Alpha1)) ExecuteSlot(2); // Slot 1
+            else if (Input.GetKeyDown(KeyCode.Alpha2)) ExecuteSlot(3); // Slot 2
+            else if (Input.GetKeyDown(KeyCode.Alpha3)) ExecuteSlot(4); // Slot 3
+            else if (Input.GetKeyDown(KeyCode.Alpha4)) ExecuteSlot(5); // Slot 4
+        }
 
-                SimulationManager.Instance.ExecuteSkill(ctx);
-            }
+        private void ExecuteSlot(int slotIndex)
+        {
+            // Fire default projectile skill for Agent A's requirement as a fallback generic test
+            var ctx = new AbilityContext
+            {
+                ExecutionShape = SkillShape.Projectile,
+                FinalDamage = BaseDamage,
+                FinalProjectileSpeed = BaseProjectileSpeed,
+                FinalProjectileCount = BaseProjectileCount,
+                FinalAreaRadius = 1f,
+                FinalCastTime = 0.1f
+            };
+
+            SimulationManager.Instance.ExecuteSkill(ctx);
         }
 
         public void TakeDamage(float amount, bool isCurseDamage = false)

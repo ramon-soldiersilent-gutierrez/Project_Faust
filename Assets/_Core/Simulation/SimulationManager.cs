@@ -103,6 +103,7 @@ namespace Faust.Simulation
                             enemy.currentHealth -= aoe.Context.FinalDamage;
                             if (enemy.currentHealth <= 0)
                             {
+                                CombatEventBus.OnEnemyKilled?.Invoke(10f); // Grant flat XP
                                 enemy.VisualTransform.gameObject.SetActive(false);
                                 _enemyPool.Enqueue(enemy.VisualTransform);
                                 _activeEnemies.RemoveAt(j);
@@ -151,6 +152,7 @@ namespace Faust.Simulation
                         
                         if (enemy.currentHealth <= 0)
                         {
+                            CombatEventBus.OnEnemyKilled?.Invoke(10f); // Grant flat XP
                             enemy.VisualTransform.gameObject.SetActive(false);
                             _enemyPool.Enqueue(enemy.VisualTransform);
                             _activeEnemies.RemoveAt(j);
@@ -270,6 +272,7 @@ namespace Faust.Simulation
                             enemy.currentHealth -= context.FinalDamage;
                             if (enemy.currentHealth <= 0)
                             {
+                                CombatEventBus.OnEnemyKilled?.Invoke(10f); // Grant flat XP
                                 enemy.VisualTransform.gameObject.SetActive(false);
                                 _enemyPool.Enqueue(enemy.VisualTransform);
                                 _activeEnemies.RemoveAt(i);
