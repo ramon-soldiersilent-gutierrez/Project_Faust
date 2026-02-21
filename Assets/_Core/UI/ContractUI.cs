@@ -11,7 +11,7 @@ namespace Faust.UI
 
         // IMGUI Settings
         private Rect GetUIRect() => new Rect(Screen.width / 2f - 150f, 10, 300, 200);
-        private Rect GetCharacterSheetRect() => new Rect(Screen.width / 2f - 300f, 220, 600, 350);
+        private Rect GetCharacterSheetRect() => new Rect(Screen.width / 2f - 300f, 150, 600, 500);
 
         private string _wishText = "I want infinite power";
         private float _greedValue = 50f;
@@ -213,11 +213,13 @@ namespace Faust.UI
                 if (model.BoonNodeIDs != null && model.BoonNodeIDs.Length > 0)
                 {
                     GUILayout.Label($"<color=#00FF00>Has Active Boon: {model.BoonNodeIDs[0]}</color>", style);
+                    GUILayout.Space(2);
                 }
                 
                 if (model.CurseNodeIDs != null && model.CurseNodeIDs.Length > 0)
                 {
                     GUILayout.Label($"<color=#FF0000>Cursed with: {model.CurseNodeIDs[0]}</color>", style);
+                    GUILayout.Space(2);
                 }
                 
                 // Divider
