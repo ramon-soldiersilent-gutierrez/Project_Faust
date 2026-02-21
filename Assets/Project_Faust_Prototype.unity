@@ -119,6 +119,103 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &12176711
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 12176713}
+  - component: {fileID: 12176712}
+  m_Layer: 0
+  m_Name: LootSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &12176712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 12176711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 659a36deb312e56408d18a640bcca763, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Faust.Simulation.LootChestSpawner
+  ChestPrefab: {fileID: 1000011713842796, guid: ffd3e66d4df2a554fb995d41f7ffe4c2, type: 3}
+  SpawnRadius: 15
+  PlayerTransform: {fileID: 852047668}
+  PickupRadius: 2
+--- !u!4 &12176713
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 12176711}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &579043314
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 579043316}
+  - component: {fileID: 579043315}
+  m_Layer: 0
+  m_Name: EnemySpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &579043315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579043314}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50140d64b7ae087479a1b3c523a7425f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Faust.Simulation.EnemySpawner
+  SpawnInterval: 1
+  SpawnRadius: 40
+  PlayerTransform: {fileID: 852047668}
+  BaseEnemyHealth: 15
+  BaseEnemySpeed: 3.5
+--- !u!4 &579043316
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579043314}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &700720111
 GameObject:
   m_ObjectHideFlags: 0
@@ -148,8 +245,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74aa6b6bd55cde64596981e219b657bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Faust.AI.AIPipeline
-  apiKey: YOUR_API_KEY_HERE
-  timeoutSeconds: 5
+  timeoutSeconds: 30
 --- !u!4 &700720113
 Transform:
   m_ObjectHideFlags: 0
@@ -178,6 +274,7 @@ GameObject:
   - component: {fileID: 852047671}
   - component: {fileID: 852047670}
   - component: {fileID: 852047669}
+  - component: {fileID: 852047673}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -299,6 +396,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 852047667}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &852047673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852047667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6430ec4e3c7b924db6560096119e81e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Faust.StatsAndHooks.LevelManager
 --- !u!1 &901228850
 GameObject:
   m_ObjectHideFlags: 0
@@ -500,6 +609,7 @@ GameObject:
   - component: {fileID: 1176829753}
   - component: {fileID: 1176829752}
   - component: {fileID: 1176829751}
+  - component: {fileID: 1176829755}
   m_Layer: 0
   m_Name: DemoHarness
   m_TagString: Untagged
@@ -519,12 +629,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e0bac842bfa13841984016e3760ad7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Faust.UI.ContractUI
-  UIRect:
-    serializedVersion: 2
-    x: 420
-    y: 10
-    width: 300
-    height: 200
+  PlayerStash: []
 --- !u!114 &1176829752
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -566,6 +671,134 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1176829755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1176829750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68aa9c58a41c8fa4e8667aa87519e191, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Faust.UI.SkillTreeUI
+  NodeSpacing: 60
+  NodeSize: 40
+--- !u!1 &1241546652
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1241546656}
+  - component: {fileID: 1241546655}
+  - component: {fileID: 1241546654}
+  - component: {fileID: 1241546653}
+  m_Layer: 0
+  m_Name: BUILDING
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!136 &1241546653
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241546652}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 0
+  serializedVersion: 2
+  m_Radius: 0.5000001
+  m_Height: 5
+  m_Direction: 1
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!23 &1241546654
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241546652}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1241546655
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241546652}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1241546656
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1241546652}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 10}
+  m_LocalScale: {x: 10, y: 1, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -612,6 +845,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a8e4549b8e994d428ca4fc145a3da99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Faust.StatsAndHooks.HookLifecycleManager
+  EquippedItems: []
+  ActiveTreeNodes: []
 --- !u!4 &1384044411
 Transform:
   m_ObjectHideFlags: 0
@@ -619,6 +854,87 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1384044408}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1940104750
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1940104754}
+  - component: {fileID: 1940104753}
+  - component: {fileID: 1940104752}
+  - component: {fileID: 1940104751}
+  m_Layer: 0
+  m_Name: PlayerUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1940104751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940104750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63ae7ab245f244844a64aacc17ea2e08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Faust.UI.DamageNumberUI
+  FloatSpeed: 2
+  TextDuration: 1
+  SpreadRadius: 0.5
+--- !u!114 &1940104752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940104750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3102b1a80fce44a4f8f690b613b4fe98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Faust.UI.PlayerHUD
+  HpBackground: {fileID: 2800000, guid: ed5c91c32b9b0af4e851c25c03211f16, type: 3}
+  HpFillTexture: {fileID: 0}
+  HpOverlayFrame: {fileID: 2800000, guid: 6403afd719acd2b4dbb0dfae7add33cb, type: 3}
+  ActionBarBackground: {fileID: 2800000, guid: 4f033cdd2b09f9a43b139729d09d002c, type: 3}
+  ActionSlotFrame: {fileID: 2800000, guid: 4293f3f43e7a5524dbcb191b0ef09d9c, type: 3}
+  SkillIcon1: {fileID: 2800000, guid: 530bcabb1501d8148a19a77465ecac03, type: 3}
+  SkillIcon2: {fileID: 2800000, guid: c890dd06d4a350946ab11e4778bf47d8, type: 3}
+  XpFillTexture: {fileID: 2800000, guid: 4f8e653bf1c0b054680c13a05741c202, type: 3}
+--- !u!114 &1940104753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940104750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28689acc9af19794598ff2da3014eaba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Faust.UI.UIManager
+--- !u!4 &1940104754
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1940104750}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -657,7 +973,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Faust.Simulation.SimulationManager
   PlayerTransform: {fileID: 852047668}
-  HitRadius: 0.5
+  HitRadius: 1
 --- !u!4 &2008015879
 Transform:
   m_ObjectHideFlags: 0
@@ -794,7 +1110,11 @@ SceneRoots:
   - {fileID: 901228852}
   - {fileID: 2138721216}
   - {fileID: 852047668}
+  - {fileID: 579043316}
   - {fileID: 2008015879}
   - {fileID: 1384044411}
   - {fileID: 700720113}
   - {fileID: 1176829754}
+  - {fileID: 1241546656}
+  - {fileID: 1940104754}
+  - {fileID: 12176713}

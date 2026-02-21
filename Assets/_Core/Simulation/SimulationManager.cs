@@ -357,6 +357,12 @@ namespace Faust.Simulation
                             });
 
                             enemy.currentHealth -= context.FinalDamage;
+                            
+                            // Hackathon juice: Add physical knockback
+                            Vector3 pushDir = (enemy.Position - sweepPos).normalized;
+                            pushDir.y = 0;
+                            enemy.Position += pushDir * 3.0f; // Shove them outward
+
                             if (enemy.currentHealth <= 0)
                             {
                                 CombatEventBus.OnEnemyKilled?.Invoke(10f); // Grant flat XP
