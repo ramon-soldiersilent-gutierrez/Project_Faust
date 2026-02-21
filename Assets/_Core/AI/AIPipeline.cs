@@ -10,7 +10,6 @@ namespace Faust.AI
         public static AIPipeline Instance { get; private set; }
 
         [Header("Gemini Configuration")]
-        [SerializeField] private string apiKey = "YOUR_API_KEY_HERE";
         [SerializeField] private int timeoutSeconds = 5;
 
         private GeminiClient _client;
@@ -20,7 +19,22 @@ namespace Faust.AI
             if (Instance == null)
             {
                 Instance = this;
-                _client = new GeminiClient(apiKey);
+                
+                string key = "YOUR_API_KEY_HERE";
+                try
+                {
+                    if (System.IO.File.Exists("apiKey.txt"))
+                    {
+                        key = System.IO.File.ReadAllText("apiKey.txt").Trim();
+                    }
+                    else
+                    {
+                        key = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+                    }
+                }
+                catch { }
+
+                _client = new GeminiClient(key);
             }
             else
             {

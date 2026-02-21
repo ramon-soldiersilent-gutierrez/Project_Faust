@@ -45,6 +45,12 @@ namespace Faust.StatsAndHooks
                 CurrentLevel++;
                 AvailableSkillPoints += 2;
                 XpToNextLevel = CurrentLevel * 100f; // Scale requirements
+                
+                if (Faust.Simulation.PlayerController.Instance != null)
+                {
+                    Faust.Simulation.PlayerController.Instance.MaxHealth += 20f;
+                    Faust.Simulation.PlayerController.Instance.Heal(Faust.Simulation.PlayerController.Instance.MaxHealth);
+                }
 
                 // Broadcast
                 CombatEventBus.OnLevelUp?.Invoke(CurrentLevel, AvailableSkillPoints);

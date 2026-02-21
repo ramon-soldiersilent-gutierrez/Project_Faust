@@ -211,11 +211,20 @@ namespace Faust.UI
             GUI.color = guiColor;
         }
 
-        // --- Demo Test Coroutine ---
         public void SimulateGenerateTree()
         {
-            AIConsole.Instance?.Log("Simulating Skill Tree Generation...");
-            StartCoroutine(GenerateMockTree());
+            int level = Faust.StatsAndHooks.LevelManager.Instance != null ? Faust.StatsAndHooks.LevelManager.Instance.CurrentLevel : 1;
+
+            if (Faust.AI.AIPipeline.Instance != null)
+            {
+                AIConsole.Instance?.Log("Requesting True Faustian Skill Tree...");
+                Faust.AI.AIPipeline.Instance.RequestSkillTreeChunk(level, "Basic Attacks", "Blood and Shadow", LoadChunk);
+            }
+            else
+            {
+                AIConsole.Instance?.Log("Simulating Skill Tree Generation (No AI Pipeline)...");
+                StartCoroutine(GenerateMockTree());
+            }
         }
 
         private IEnumerator GenerateMockTree()

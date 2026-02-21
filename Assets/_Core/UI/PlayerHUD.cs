@@ -15,7 +15,9 @@ namespace Faust.UI
         [Header("Action Bar Assets")]
         public Texture2D ActionBarBackground; // e.g., mid_background.png
         public Texture2D ActionSlotFrame;     // e.g., button_frame.png
-        
+        public Texture2D SkillIcon1;          // Left click skill icon
+        public Texture2D SkillIcon2;          // Right click skill icon
+
         [Header("XP Bar Assets")]
         public Texture2D XpFillTexture;      // Flat yellow texture or similar
 
@@ -138,6 +140,14 @@ namespace Faust.UI
                 {
                     // Fallback block if no texture dragged in
                     GUI.Box(slotRect, "");
+                }
+
+                Texture2D icon = i == 0 ? SkillIcon1 : base.GetComponent<PlayerHUD>()?.SkillIcon2;
+                if (icon != null)
+                {
+                    // Draw icon slightly smaller than frame
+                    Rect iconRect = new Rect(slotRect.x + 5, slotRect.y + 5, slotRect.width - 10, slotRect.height - 10);
+                    GUI.DrawTexture(iconRect, icon);
                 }
                 
                 GUI.backgroundColor = defaultColor;

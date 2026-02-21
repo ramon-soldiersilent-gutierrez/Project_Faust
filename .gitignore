@@ -70,6 +70,7 @@ crashlytics-build.properties
 # Secrets and AI Keys
 *.env
 [Ss]ecrets/
+apiKey.txt
 
 # Ignore the path of building submodule folder
 /[Pp][Oo][Bb]/
