@@ -38,7 +38,10 @@ namespace Faust.Simulation
             Vector3 spawnPos = PlayerTransform.position + offset;
             spawnPos.y = 0.5f; // Force enemies to stay on the floor plane
             
-            SimulationManager.Instance.SpawnEnemy(spawnPos, BaseEnemyHealth, BaseEnemySpeed);
+            // 20% chance for Ranged (enum value 1), 80% for Melee (enum value 0)
+            int enemyType = Random.value < 0.2f ? 1 : 0;
+            
+            SimulationManager.Instance.SpawnEnemy(spawnPos, BaseEnemyHealth, BaseEnemySpeed, enemyType);
         }
     }
 }
