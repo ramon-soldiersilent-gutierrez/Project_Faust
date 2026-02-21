@@ -21,15 +21,25 @@ namespace Faust.UI
         private ContractModel _armorSlot;
         private ContractModel _accessorySlot;
 
+        // UI State
+        private bool _showForge = true;
+        private bool _showInventory = true;
+
         private void Awake()
         {
             Instance = this;
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.F)) _showForge = !_showForge;
+            if (Input.GetKeyDown(KeyCode.I)) _showInventory = !_showInventory;
+        }
+
         private void OnGUI()
         {
-            DrawForgeWindow();
-            DrawInventoryWindow();
+            if (_showForge) DrawForgeWindow();
+            if (_showInventory) DrawInventoryWindow();
         }
 
         private void DrawForgeWindow()

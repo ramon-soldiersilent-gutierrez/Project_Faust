@@ -1,5 +1,6 @@
 using UnityEngine;
 using Faust.Rails;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Faust.UI
@@ -17,14 +18,25 @@ namespace Faust.UI
         private Vector2 _scrollPosition;
         private Dictionary<string, SkillTreeNode> _nodeMap = new Dictionary<string, SkillTreeNode>();
 
+        private bool _showSkillTree = false;
+
         private void Awake()
         {
             Instance = this;
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                _showSkillTree = !_showSkillTree;
+            }
+        }
+
         public void LoadChunk(SkillTreeChunk chunk)
         {
             _currentChunk = chunk;
+            _showSkillTree = true; // Auto-open when loaded
             _nodeMap.Clear();
             if (chunk != null)
             {
@@ -39,11 +51,12 @@ namespace Faust.UI
         {
             _currentChunk = null;
             _nodeMap.Clear();
+            _showSkillTree = false;
         }
 
         private void OnGUI()
         {
-            if (_currentChunk == null) return;
+            if (!_showSkillTree || _currentChunk == null) return;
 
             GUILayout.BeginArea(TreeRect, $"Faustian Tree: {_currentChunk.ChunkName}", GUI.skin.window);
             
@@ -96,7 +109,7 @@ namespace Faust.UI
                 
                 if (GUI.Button(nodeRect, node.NodeID, nodeStyle))
                 {
-                    AIConsole.Instance?.Log($"<b>{node.DisplayName}</b>\n<i>{node.FlavorText}</i>\nBoons: {node.GrantedBoons?.Length ?? 0}\nCurses: {node.GrantedCurses?.Length ?? 0}");
+                    AIConsole.Instance?.Log($"<b>{node.DisplayName}</b>\n<i>{node.FlavorText}</i>\nBoons: {node.GrantedBoonIDs?.Length ?? 0}\nCurses: {node.GrantedCurseIDs?.Length ?? 0}");
                 }
                 
                 GUI.backgroundColor = Color.white;
@@ -148,7 +161,7 @@ namespace Faust.UI
                     new SkillTreeNode { NodeID = "n0", DisplayName = "Start", GridX = 0, GridY = 0, ConnectedNodeIDs = new[] {"n1", "n2"}, FlavorText = "The beginning." },
                     new SkillTreeNode { NodeID = "n1", DisplayName = "Damage+", GridX = 1, GridY = -1, ConnectedNodeIDs = new[] {"n3"}, FlavorText = "Blood flows." },
                     new SkillTreeNode { NodeID = "n2", DisplayName = "Speed+", GridX = 1, GridY = 1, ConnectedNodeIDs = new[] {"n3"}, FlavorText = "Heart pounds." },
-                    new SkillTreeNode { NodeID = "n3", DisplayName = "Toll of Blood", GridX = 2, GridY = 0, IsKeystone = true, FlavorText = "Pay the ultimate price.", GrantedBoons = new[] {"Boon_DamageSpike"}, GrantedCurses = new[] {"Curse_SelfDamage"} }
+                    new SkillTreeNode { NodeID = "n3", DisplayName = "Toll of Blood", GridX = 2, GridY = 0, IsKeystone = true, FlavorText = "Pay the ultimate price.", GrantedBoonIDs = new[] {"Boon_DamageSpike"}, GrantedCurseIDs = new[] {"Curse_SelfDamage"} }
                 }
             };
             
