@@ -93,39 +93,6 @@ namespace Faust.Simulation
                 VisualTransform = cTrans
             });
         }
-            Vector3 playerPos = PlayerTransform.position;
-            for (int i = _activeChests.Count - 1; i >= 0; i--)
-            {
-                var chest = _activeChests[i];
-                if (Vector3.Distance(chest.Position, playerPos) <= PickupRadius)
-                {
-                    OpenChest();
-                    chest.VisualTransform.gameObject.SetActive(false);
-                    _chestPool.Enqueue(chest.VisualTransform);
-                    _activeChests.RemoveAt(i);
-                }
-            }
-        }
-
-        private void SpawnChest()
-        {
-            if (_chestPool.Count == 0) return;
-            
-            float angle = Random.Range(0f, Mathf.PI * 2);
-            Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * SpawnRadius;
-            Vector3 spawnPos = PlayerTransform.position + offset;
-            spawnPos.y = 0.25f; 
-            
-            Transform cTrans = _chestPool.Dequeue();
-            cTrans.position = spawnPos;
-            cTrans.gameObject.SetActive(true);
-
-            _activeChests.Add(new ChestBody
-            {
-                Position = spawnPos,
-                VisualTransform = cTrans
-            });
-        }
 
         private void OpenChest()
         {
