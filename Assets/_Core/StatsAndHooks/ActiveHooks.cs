@@ -112,11 +112,11 @@ namespace Faust.StatsAndHooks
 
         private void HandleHit(HitInfo info)
         {
-            if (PlayerContext.Instance != null && info.Instigator == PlayerContext.Instance.transform)
+            if (Faust.Simulation.PlayerController.Instance != null && info.Instigator == Faust.Simulation.PlayerController.Instance.transform)
             {
                 // Heal 5% of max health on hit
-                float healAmount = PlayerContext.Instance.MaxHealth * 0.05f;
-                PlayerContext.Instance.Heal(healAmount);
+                float healAmount = Faust.Simulation.PlayerController.Instance.MaxHealth * 0.05f;
+                Faust.Simulation.PlayerController.Instance.Heal(healAmount);
                 Debug.Log($"<color=green>VAMPIRIC HEAL:</color> +{healAmount} HP");
             }
         }
@@ -140,12 +140,12 @@ namespace Faust.StatsAndHooks
 
         private void HandleDamaged(float amount)
         {
-            if (PlayerContext.Instance != null)
+            if (Faust.Simulation.PlayerController.Instance != null)
             {
                 // Teleport randomly within 5 units
                 Vector2 randPos = UnityEngine.Random.insideUnitCircle * 5f;
-                Vector3 newPos = PlayerContext.Instance.transform.position + new Vector3(randPos.x, 0, randPos.y);
-                PlayerContext.Instance.transform.position = newPos;
+                Vector3 newPos = Faust.Simulation.PlayerController.Instance.transform.position + new Vector3(randPos.x, 0, randPos.y);
+                Faust.Simulation.PlayerController.Instance.transform.position = newPos;
                 Debug.Log("<color=red>CURSE: TELEPORTED ON HIT!</color>");
             }
         }
@@ -167,11 +167,11 @@ namespace Faust.StatsAndHooks
 
         private void HandleDamaged(float amount)
         {
-            if (PlayerContext.Instance != null)
+            if (Faust.Simulation.PlayerController.Instance != null)
             {
                 // Take an extra 50% damage
                 float extraDamage = amount * 0.5f;
-                PlayerContext.Instance.TakeDamage(extraDamage);
+                Faust.Simulation.PlayerController.Instance.TakeDamage(extraDamage, true);
                 Debug.Log($"<color=red>CURSE: GLASS CANNON EXTRA DAMAGE:</color> {extraDamage}");
             }
         }
@@ -193,10 +193,10 @@ namespace Faust.StatsAndHooks
 
         private void HandleCast(CastInfo info)
         {
-            if (PlayerContext.Instance != null)
+            if (Faust.Simulation.PlayerController.Instance != null)
             {
                 // Deal 5 damage to self on cast
-                PlayerContext.Instance.TakeDamage(5f);
+                Faust.Simulation.PlayerController.Instance.TakeDamage(5f, true);
                 Debug.Log("<color=red>CURSE: TOOK 5 DMG ON CAST!</color>");
             }
         }
@@ -218,10 +218,10 @@ namespace Faust.StatsAndHooks
 
         private void HandleDamaged(float amount)
         {
-            if (PlayerContext.Instance != null)
+            if (Faust.Simulation.PlayerController.Instance != null)
             {
                 // Logically set a rooted flag. The PlayerController will handle it.
-                PlayerContext.Instance.IsRooted = true;
+                Faust.Simulation.PlayerController.Instance.IsRooted = true;
                 Debug.Log("<color=red>CURSE: ROOTED!</color>");
             }
         }

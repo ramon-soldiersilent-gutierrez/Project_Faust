@@ -46,11 +46,15 @@ namespace Faust.UI
 
             AIConsole.Instance?.Log($"Requesting Contract: Wish='{wish}', Greed={greed} (Tier {greedTier})");
 
-            // TODO: Call Agent D's pipeline here once they merge.
-            // Example: AgentD.ContractService.RequestContract(wish, greedTier, OnContractReceived, OnContractFailed);
-            
-            // For now in this worktree, we simulate an async response:
-            StartCoroutine(SimulateAIResponse(wish, greedTier));
+            if (Faust.AI.AIPipeline.Instance != null)
+            {
+                Faust.AI.AIPipeline.Instance.RequestContract(wish, greed, OnContractReceived);
+            }
+            else
+            {
+                Debug.LogWarning("ContractUI: AIPipeline Instance not found! Using fallback simulator.");
+                StartCoroutine(SimulateAIResponse(wish, greedTier));
+            }
         }
 
         private IEnumerator SimulateAIResponse(string wish, int greedTier)
@@ -77,8 +81,15 @@ namespace Faust.UI
             if (forgeButton != null)
                 forgeButton.interactable = true;
 
-            // TODO: Apply the contract via the global runtime once integrated
-            // Example: GlobalContractRuntime.Instance.ApplyContract(model); 
+            // Apply the contract via the global runtime
+            if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)
+            {
+                Faust.StatsAndHooks.HookLifecycleManager.Instance.ApplyContract(model);
+            }
+            else
+            {
+                Debug.LogError("ContractUI: HookLifecycleManager not found, could not apply contract!");
+            }
         }
         
         private void OnContractFailed(string errorMsg)

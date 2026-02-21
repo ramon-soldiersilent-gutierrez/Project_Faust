@@ -5,10 +5,15 @@ namespace Faust.Simulation
 {
     public class PlayerController : MonoBehaviour
     {
+        public static PlayerController Instance { get; private set; }
+
         [Header("Stats")]
         public float MoveSpeed = 5f;
         public float MaxHealth = 100f;
         public float CurrentHealth;
+
+        [HideInInspector]
+        public bool IsRooted = false;
 
         [Header("Temp Default Skill")]
         public float BaseDamage = 10f;
@@ -20,18 +25,21 @@ namespace Faust.Simulation
 
         private void Awake()
         {
+            if (Instance == null) Instance = this;
+            else { Destroy(gameObject); return; }
+
             _mainCamera = Camera.main;
             CurrentHealth = MaxHealth;
         }
 
         private void OnEnable()
         {
-            CombatEventBus.OnPlayerDamaged += HandlePlayerDamaged;
+            // Removed CombatEventBus subscription to prevent infinite loop recursion with hooks
         }
 
         private void OnDisable()
         {
-            CombatEventBus.OnPlayerDamaged -= HandlePlayerDamaged;
+            // Removed CombatEventBus subscription
         }
 
         private void Update()
@@ -43,6 +51,8 @@ namespace Faust.Simulation
 
         private void HandleMovement()
         {
+            if (IsRooted) return;
+
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
 
@@ -87,10 +97,14 @@ namespace Faust.Simulation
             }
         }
 
-        private void HandlePlayerDamaged(float amount)
+        public void TakeDamage(float amount, bool isCurseDamage = false)
         {
             CurrentHealth -= amount;
-            // Debug.Log($"Player took {amount} damage! Health: {CurrentHealth}");
+            
+            if (!isCurseDamage)
+            {
+                CombatEventBus.OnPlayerDamaged?.Invoke(amount);
+            }
             
             if (CurrentHealth <= 0)
             {
@@ -98,11 +112,19 @@ namespace Faust.Simulation
             }
         }
 
+        public void Heal(float amount)
+        {
+            CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + amount);
+        }
+
         // Called by DemoAPI (simulated) or externally
+        public void ResetPlayer()
+        {
         public void ResetPlayer()
         {
             transform.position = Vector3.zero;
             CurrentHealth = MaxHealth;
+            IsRooted = false;
         }
     }
 }
