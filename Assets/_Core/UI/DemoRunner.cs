@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Faust.Rails;
+using Faust.StatsAndHooks;
 
 namespace Faust.UI
 {
@@ -40,7 +41,8 @@ namespace Faust.UI
                 Faust.Simulation.SimulationManager.Instance.ResetAll();
 
             // 4. Restore Player Health/Pos
-            PlayerContext.Reset();
+            if (Faust.Simulation.PlayerController.Instance != null)
+                Faust.Simulation.PlayerController.Instance.ResetPlayer();
 
             // 5. Clear AI Console
             if (AIConsole.Instance != null)

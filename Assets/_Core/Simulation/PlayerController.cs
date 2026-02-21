@@ -5,10 +5,15 @@ namespace Faust.Simulation
 {
     public class PlayerController : MonoBehaviour
     {
+        public static PlayerController Instance { get; private set; }
+
         [Header("Stats")]
         public float MoveSpeed = 5f;
         public float MaxHealth = 100f;
         public float CurrentHealth;
+
+        [HideInInspector]
+        public bool IsRooted = false;
 
         [Header("Temp Default Skill")]
         public float BaseDamage = 10f;
@@ -26,7 +31,7 @@ namespace Faust.Simulation
         private void Awake()
         {
             if (Instance == null) Instance = this;
-            else Destroy(gameObject);
+            else { Destroy(gameObject); return; }
 
             _mainCamera = Camera.main;
             CurrentHealth = MaxHealth;
@@ -34,12 +39,12 @@ namespace Faust.Simulation
 
         private void OnEnable()
         {
-            CombatEventBus.OnPlayerDamaged += HandlePlayerDamaged;
+            // Removed CombatEventBus subscription to prevent infinite loop recursion with hooks
         }
 
         private void OnDisable()
         {
-            CombatEventBus.OnPlayerDamaged -= HandlePlayerDamaged;
+            // Removed CombatEventBus subscription
         }
 
         private void Update()
@@ -97,14 +102,14 @@ namespace Faust.Simulation
             }
         }
 
-        private void HandlePlayerDamaged(float amount)
-        {
-            TakeDamage(amount);
-        }
-
-        public void TakeDamage(float amount)
+        public void TakeDamage(float amount, bool isCurseDamage = false)
         {
             CurrentHealth = Mathf.Max(0, CurrentHealth - amount);
+            
+            if (!isCurseDamage)
+            {
+                CombatEventBus.OnPlayerDamaged?.Invoke(amount);
+            }
             if (CurrentHealth <= 0)
             {
                 // Handle Death

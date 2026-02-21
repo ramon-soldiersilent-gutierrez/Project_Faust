@@ -171,7 +171,7 @@ namespace Faust.StatsAndHooks
             {
                 // Take an extra 50% damage
                 float extraDamage = amount * 0.5f;
-                Faust.Simulation.PlayerController.Instance.TakeDamage(extraDamage);
+                Faust.Simulation.PlayerController.Instance.TakeDamage(extraDamage, true);
                 Debug.Log($"<color=red>CURSE: GLASS CANNON EXTRA DAMAGE:</color> {extraDamage}");
             }
         }
@@ -196,7 +196,7 @@ namespace Faust.StatsAndHooks
             if (Faust.Simulation.PlayerController.Instance != null)
             {
                 // Deal 5 damage to self on cast
-                Faust.Simulation.PlayerController.Instance.TakeDamage(5f);
+                Faust.Simulation.PlayerController.Instance.TakeDamage(5f, true);
                 Debug.Log("<color=red>CURSE: TOOK 5 DMG ON CAST!</color>");
             }
         }

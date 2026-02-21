@@ -1,6 +1,6 @@
 using UnityEngine;
-using TMPro;
 using Faust.Rails;
+using System.Collections.Generic;
 
 namespace Faust.UI
 {
@@ -8,8 +8,11 @@ namespace Faust.UI
     {
         public static AIConsole Instance { get; private set; }
         
-        [Header("UI References")]
-        [SerializeField] private TMP_Text outputText;
+        private List<string> _logEntries = new List<string>();
+        private Vector2 _scrollPosition;
+        
+        [Header("IMGUI Settings")]
+        public Rect ConsoleRect = new Rect(10, 10, 400, 300);
 
         private void Awake()
         {
@@ -34,18 +37,31 @@ namespace Faust.UI
 
         public void Clear()
         {
-            if (outputText != null)
-                outputText.text = "";
+            _logEntries.Clear();
         }
 
         private void AppendText(string text)
         {
-            if (outputText != null)
-            {
-                outputText.text += text + "\n\n";
-                // Auto-scroll could be handled here if attached to a ScrollRect
-            }
+            _logEntries.Add(text);
+            if (_logEntries.Count > 100) _logEntries.RemoveAt(0); // Cap history
+            _scrollPosition.y = float.MaxValue; // Auto-scroll to bottom
             Debug.Log($"[AI_OutputConsole] {text}");
+        }
+
+        private void OnGUI()
+        {
+            GUILayout.BeginArea(ConsoleRect, "AI Console", GUI.skin.window);
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
+            
+            // Draw log
+            GUIStyle logStyle = new GUIStyle(GUI.skin.label) { richText = true, wordWrap = true };
+            foreach (var entry in _logEntries)
+            {
+                GUILayout.Label(entry, logStyle);
+            }
+            
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
         }
     }
 }
