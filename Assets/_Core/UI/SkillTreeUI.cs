@@ -49,6 +49,35 @@ namespace Faust.UI
             IsVisible = false;
         }
 
+        private void DrawHeader()
+        {
+            GUILayout.BeginHorizontal();
+            GUIStyle headerStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontSize = 14,
+                fontStyle = FontStyle.Bold
+            };
+            
+            if (Faust.StatsAndHooks.LevelManager.Instance != null)
+            {
+                int points = Faust.StatsAndHooks.LevelManager.Instance.AvailableSkillPoints;
+                headerStyle.normal.textColor = points > 0 ? Color.yellow : Color.white;
+                GUILayout.Label($"Available Skill Points: {points}", headerStyle);
+            }
+
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("Reset Tree", GUILayout.Width(100)))
+            {
+                if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)
+                {
+                    Faust.StatsAndHooks.HookLifecycleManager.Instance.ResetTreeAllocations();
+                }
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10);
+        }
+
         private void OnGUI()
         {
             if (!IsVisible) return;
@@ -66,6 +95,8 @@ namespace Faust.UI
             }
 
             GUILayout.BeginArea(GetTreeRect(), $"Faustian Tree: {_currentChunk.ChunkName}", GUI.skin.window);
+            
+            DrawHeader();
             
             // Basic layout math for internal scroll view size
             float minX = 0, minY = 0, maxX = 0, maxY = 0;
@@ -111,12 +142,43 @@ namespace Faust.UI
             {
                 Rect nodeRect = new Rect(node.GridX * NodeSpacing + offsetX, node.GridY * NodeSpacing + offsetY, NodeSize, NodeSize);
                 
-                // Colorize based on keystone
-                GUI.backgroundColor = node.IsKeystone ? Color.red : Color.white;
+                int currentPoints = Faust.StatsAndHooks.LevelManager.Instance != null ? Faust.StatsAndHooks.LevelManager.Instance.AvailableSkillPoints : 0;
+                bool canAfford = currentPoints > 0;
+                
+                bool isAllocated = false;
+                if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)
+                {
+                    isAllocated = Faust.StatsAndHooks.HookLifecycleManager.Instance.AllocatedNodeIDs.Contains(node.NodeID);
+                }
+
+                // Colorize based on allocation or keystone
+                if (isAllocated)
+                {
+                    GUI.backgroundColor = Color.yellow;
+                }
+                else if (node.IsKeystone)
+                {
+                    GUI.backgroundColor = Color.red;
+                }
+                else
+                {
+                    GUI.backgroundColor = Color.white;
+                }
                 
                 if (GUI.Button(nodeRect, node.NodeID, nodeStyle))
                 {
-                    AIConsole.Instance?.Log($"<b>{node.DisplayName}</b>\n<i>{node.FlavorText}</i>\nBoons: {node.GrantedBoonIDs?.Length ?? 0}\nCurses: {node.GrantedCurseIDs?.Length ?? 0}");
+                    if (!isAllocated && canAfford)
+                    {
+                        if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)
+                        {
+                            Faust.StatsAndHooks.HookLifecycleManager.Instance.ToggleNodeAllocation(node);
+                        }
+                    }
+                        
+                    // Flavor text logging
+                    int boonCount = node.GrantedBoonIDs != null ? node.GrantedBoonIDs.Length : 0;
+                    int curseCount = node.GrantedCurseIDs != null ? node.GrantedCurseIDs.Length : 0;
+                    AIConsole.Instance?.Log($"[{node.DisplayName}] {node.FlavorText} (Boons: {boonCount}, Curses: {curseCount})");
                 }
                 
                 GUI.backgroundColor = Color.white;

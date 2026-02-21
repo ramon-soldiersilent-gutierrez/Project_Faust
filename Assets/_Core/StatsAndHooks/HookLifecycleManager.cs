@@ -16,6 +16,10 @@ namespace Faust.StatsAndHooks
         public List<SkillTreeNode> ActiveTreeNodes = new List<SkillTreeNode>();
         public HashSet<string> AllocatedNodeIDs = new HashSet<string>();
 
+        // Public getters for UI display on the Character Sheet
+        public float CurrentDamageMultiplier { get; private set; } = 1.0f;
+        public float CurrentSpeedMultiplier { get; private set; } = 1.0f;
+
         private void Awake()
         {
             if (Instance == null) Instance = this;
@@ -70,6 +74,33 @@ namespace Faust.StatsAndHooks
             }
         }
 
+        public void ResetTreeAllocations()
+        {
+            if (LevelManager.Instance != null)
+            {
+                // Refund 1 point for every allocated node
+                LevelManager.Instance.RefundSkillPoints(AllocatedNodeIDs.Count);
+            }
+            AllocatedNodeIDs.Clear();
+            ActiveTreeNodes.Clear();
+            RefreshAll();
+            Debug.Log("Skill Tree allocations reset and points refunded.");
+        }
+
+        public List<string> GetActiveBoons()
+        {
+            List<string> boons = new List<string>();
+            foreach (var item in EquippedItems)
+            {
+                if (item.BoonNodeIDs != null) boons.AddRange(item.BoonNodeIDs);
+            }
+            foreach (var node in ActiveTreeNodes)
+            {
+                if (node.GrantedBoonIDs != null) boons.AddRange(node.GrantedBoonIDs);
+            }
+            return boons;
+        }
+
         public void RefreshAll()
         {
             ClearAllHooks();
@@ -115,11 +146,14 @@ namespace Faust.StatsAndHooks
             }
 
             // 3. Compile Global Stats to PlayerController (Simulation reads from this)
+            CurrentDamageMultiplier = totalDamageMultiplier * (1.0f + treeDamageIncreased);
+            CurrentSpeedMultiplier = totalSpeedMultiplier * (1.0f + treeSpeedIncreased);
+
             if (Faust.Simulation.PlayerController.Instance != null)
             {
                 // Damage = Base(10) * (1 + Sum(Increased)) * Product(More)
-                Faust.Simulation.PlayerController.Instance.BaseDamage = 10f * (1.0f + treeDamageIncreased) * totalDamageMultiplier;
-                Faust.Simulation.PlayerController.Instance.BaseProjectileSpeed = 20f * (1.0f + treeSpeedIncreased) * totalSpeedMultiplier;
+                Faust.Simulation.PlayerController.Instance.BaseDamage = 10f * CurrentDamageMultiplier;
+                Faust.Simulation.PlayerController.Instance.BaseProjectileSpeed = 20f * CurrentSpeedMultiplier;
             }
             
             Debug.Log($"Refreshed All Stats/Hooks. Items: {EquippedItems.Count}, Nodes: {ActiveTreeNodes.Count}");

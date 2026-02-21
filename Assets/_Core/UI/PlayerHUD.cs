@@ -15,6 +15,9 @@ namespace Faust.UI
         [Header("Action Bar Assets")]
         public Texture2D ActionBarBackground; // e.g., mid_background.png
         public Texture2D ActionSlotFrame;     // e.g., button_frame.png
+        
+        [Header("XP Bar Assets")]
+        public Texture2D XpFillTexture;      // Flat yellow texture or similar
 
         private void Awake()
         {
@@ -129,6 +132,27 @@ namespace Faust.UI
 
                 // Draw input binding text
                 GUI.Label(slotRect, bindings[i], labelStyle);
+            }
+
+            // Draw XP Bar underneath
+            float xpBarHeight = 8f;
+            float xpBarY = startY + slotSize + 2f;
+            Rect xpBarBgRect = new Rect(startX, xpBarY, totalWidth, xpBarHeight);
+            
+            // Background
+            GUI.Box(xpBarBgRect, "");
+
+            // Fill
+            if (Faust.StatsAndHooks.LevelManager.Instance != null && XpFillTexture != null)
+            {
+                float xpPercent = 0f;
+                if (Faust.StatsAndHooks.LevelManager.Instance.XpToNextLevel > 0)
+                {
+                     xpPercent = Faust.StatsAndHooks.LevelManager.Instance.CurrentXP / Faust.StatsAndHooks.LevelManager.Instance.XpToNextLevel;
+                }
+                
+                Rect xpFillRect = new Rect(startX, xpBarY, totalWidth * Mathf.Clamp01(xpPercent), xpBarHeight);
+                GUI.DrawTexture(xpFillRect, XpFillTexture);
             }
         }
     }

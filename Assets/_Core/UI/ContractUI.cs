@@ -10,7 +10,7 @@ namespace Faust.UI
 
         // IMGUI Settings
         private Rect GetUIRect() => new Rect(Screen.width / 2f - 150f, 10, 300, 200);
-        private Rect GetInventoryRect() => new Rect(Screen.width / 2f - 150f, 220, 300, 120);
+        private Rect GetCharacterSheetRect() => new Rect(Screen.width / 2f - 300f, 220, 600, 350);
 
         private string _wishText = "I want infinite power";
         private float _greedValue = 50f;
@@ -34,7 +34,7 @@ namespace Faust.UI
         {
             DrawHelperText();
             if (IsForgeVisible) DrawForgeWindow();
-            if (IsInventoryVisible) DrawInventoryWindow();
+            if (IsInventoryVisible) DrawCharacterSheetWindow();
         }
 
         private void DrawHelperText()
@@ -48,7 +48,7 @@ namespace Faust.UI
             helperStyle.normal.textColor = Color.yellow;
 
             Rect helperRect = new Rect(Screen.width - 350, 10, 340, 30);
-            GUI.Label(helperRect, "F: Forge | I: Inventory | T: Skill Tree | C: Console", helperStyle);
+            GUI.Label(helperRect, "F: Forge | I: Character Sheet | T: Skill Tree | C: Console", helperStyle);
         }
 
         private void DrawForgeWindow()
@@ -74,16 +74,72 @@ namespace Faust.UI
             GUILayout.EndArea();
         }
 
-        private void DrawInventoryWindow()
+        private void DrawCharacterSheetWindow()
         {
-            GUILayout.BeginArea(GetInventoryRect(), "Equipped Contracts", GUI.skin.window);
-            
+            GUILayout.BeginArea(GetCharacterSheetRect(), "Character Sheet", GUI.skin.window);
             GUIStyle richTextLabel = new GUIStyle(GUI.skin.label) { richText = true };
             
+            GUILayout.BeginHorizontal();
+            
+            // --- LEFT COLUMN: STATS ---
+            GUILayout.BeginVertical(GUILayout.Width(280));
+            GUILayout.Label("<color=cyan><b>Core Statistics</b></color>", richTextLabel);
+            
+            if (Faust.Simulation.PlayerController.Instance != null && Faust.StatsAndHooks.LevelManager.Instance != null)
+            {
+                GUILayout.Label($"Level: {Faust.StatsAndHooks.LevelManager.Instance.CurrentLevel}");
+                GUILayout.Label($"Max HP: {Faust.Simulation.PlayerController.Instance.MaxHealth}");
+                GUILayout.Label($"Base Damage: {Faust.Simulation.PlayerController.Instance.BaseDamage:F1}");
+                GUILayout.Label($"Proj Speed: {Faust.Simulation.PlayerController.Instance.BaseProjectileSpeed:F1}");
+            }
+            else
+            {
+                GUILayout.Label("Simulation Offline.", richTextLabel);
+            }
+
+            GUILayout.Space(10);
+            GUILayout.Label("<color=cyan><b>Multipliers</b></color>", richTextLabel);
+            if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)
+            {
+                GUILayout.Label($"Damage: x{Faust.StatsAndHooks.HookLifecycleManager.Instance.CurrentDamageMultiplier:F2}");
+                GUILayout.Label($"Speed: x{Faust.StatsAndHooks.HookLifecycleManager.Instance.CurrentSpeedMultiplier:F2}");
+                
+                GUILayout.Space(10);
+                GUILayout.Label("<color=cyan><b>Active Boons</b></color>", richTextLabel);
+                
+                var activeBoons = Faust.StatsAndHooks.HookLifecycleManager.Instance.GetActiveBoons();
+                if (activeBoons.Count == 0)
+                {
+                    GUILayout.Label("<color=gray>None</color>", richTextLabel);
+                }
+                else
+                {
+                    foreach (var boon in activeBoons)
+                    {
+                        GUILayout.Label($"• {boon}");
+                    }
+                }
+            }
+            GUILayout.EndVertical();
+
+            // Divider
+            GUILayout.Box("", GUILayout.Width(2), GUILayout.ExpandHeight(true));
+            GUILayout.Space(10);
+
+            // --- RIGHT COLUMN: EQUIPPED ITEMS ---
+            GUILayout.BeginVertical(GUILayout.Width(280));
+            GUILayout.Label("<color=cyan><b>Equipped Items</b></color>", richTextLabel);
+            GUILayout.Space(5);
+            
             DrawSlot("Weapon", _weaponSlot, richTextLabel);
+            GUILayout.Space(5);
             DrawSlot("Armor", _armorSlot, richTextLabel);
+            GUILayout.Space(5);
             DrawSlot("Accessory", _accessorySlot, richTextLabel);
             
+            GUILayout.EndVertical();
+            
+            GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
 

@@ -66,6 +66,11 @@ namespace Faust.StatsAndHooks
             }
             return false;
         }
+
+        public void RefundSkillPoints(int amount)
+        {
+            AvailableSkillPoints += amount;
+        }
         
         // For Demo Reset API
         public void ResetLeveling()
