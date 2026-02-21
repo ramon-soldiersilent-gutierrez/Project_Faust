@@ -96,6 +96,7 @@ namespace Faust.UI
 
             GUILayout.BeginArea(GetTreeRect(), $"Faustian Tree: {_currentChunk.ChunkName}", GUI.skin.window);
             
+            _hoveredNode = null; // Reset hover state every frame
             DrawHeader();
             
             // Basic layout math for internal scroll view size
@@ -181,6 +182,13 @@ namespace Faust.UI
                     AIConsole.Instance?.Log($"[{node.DisplayName}] {node.FlavorText} (Boons: {boonCount}, Curses: {curseCount})");
                 }
                 
+                // Hover Detection
+                Vector2 mousePos = Event.current.mousePosition;
+                if (nodeRect.Contains(mousePos))
+                {
+                    _hoveredNode = node;
+                }
+                
                 GUI.backgroundColor = Color.white;
                 
                 // Label above node
@@ -189,6 +197,55 @@ namespace Faust.UI
             }
 
             GUI.EndScrollView();
+            
+            // Draw Tooltip Overlay (outside scrollview so it doesn't clip)
+            if (_hoveredNode != null)
+            {
+                DrawNodeTooltip(_hoveredNode);
+            }
+            
+            GUILayout.EndArea();
+        }
+
+        private SkillTreeNode _hoveredNode;
+
+        private void DrawNodeTooltip(SkillTreeNode node)
+        {
+            Vector2 mousePos = Event.current.mousePosition;
+            float tooltipWidth = 200f;
+            float tooltipHeight = 120f; // flexible
+            
+            // Shift tooltip so it doesn't sit exactly under the mouse and flicker
+            Rect tooltipRect = new Rect(mousePos.x + 15, mousePos.y + 15, tooltipWidth, tooltipHeight);
+            
+            // Keep it on screen
+            if (tooltipRect.xMax > GetTreeRect().width) tooltipRect.x -= (tooltipWidth + 30);
+            if (tooltipRect.yMax > GetTreeRect().height) tooltipRect.y -= (tooltipHeight + 30);
+
+            GUILayout.BeginArea(tooltipRect, GUI.skin.box);
+            
+            GUIStyle titleStyle = new GUIStyle(GUI.skin.label) { richText = true, fontStyle = FontStyle.Bold };
+            string colorHex = node.IsKeystone ? "#FF5555" : "#FFFF55";
+            GUILayout.Label($"<color={colorHex}>{node.DisplayName}</color>", titleStyle);
+            
+            GUIStyle descStyle = new GUIStyle(GUI.skin.label) { richText = true, fontSize = 11, wordWrap = true };
+            
+            if (node.DamageDelta != 0) GUILayout.Label($"Damage: {(node.DamageDelta > 0 ? "+" : "")}{node.DamageDelta*100f:F1}%", descStyle);
+            if (node.SpeedDelta != 0) GUILayout.Label($"Speed: {(node.SpeedDelta > 0 ? "+" : "")}{node.SpeedDelta*100f:F1}%", descStyle);
+            if (node.SizeDelta != 0) GUILayout.Label($"Size: {(node.SizeDelta > 0 ? "+" : "")}{node.SizeDelta*100f:F1}%", descStyle);
+
+            if (node.GrantedBoonIDs != null)
+            {
+                foreach(var b in node.GrantedBoonIDs) GUILayout.Label($"<color=#00FF00>Boon: {b}</color>", descStyle);
+            }
+            if (node.GrantedCurseIDs != null)
+            {
+                foreach(var c in node.GrantedCurseIDs) GUILayout.Label($"<color=#FF0000>Curse: {c}</color>", descStyle);
+            }
+
+            GUILayout.Space(5);
+            GUILayout.Label($"<color=#AAAAAA><i>\"{node.FlavorText}\"</i></color>", descStyle);
+            
             GUILayout.EndArea();
         }
 
