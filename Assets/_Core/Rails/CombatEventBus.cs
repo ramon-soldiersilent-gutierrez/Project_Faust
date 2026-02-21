@@ -9,6 +9,7 @@ namespace Faust.Rails
         public static Action<HitInfo> OnHit;
         public static Action<float> OnPlayerDamaged; // Amount damaged
         public static Action<float> OnEnemyKilled; // XP Value
+        public static Action<int, int> OnLevelUp; // Level, TotalSkillPoints
     }
 
     public struct CastInfo
