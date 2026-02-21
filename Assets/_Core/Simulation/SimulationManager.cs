@@ -183,11 +183,60 @@ namespace Faust.Simulation
             for (int i = _activeEnemies.Count - 1; i >= 0; i--)
             {
                 var enemy = _activeEnemies[i];
-                
-                // Move directly toward player
-                Vector3 dirToPlayer = (playerPos - enemy.Position).normalized;
-                enemy.Position += dirToPlayer * enemy.MoveSpeed * dt;
-                enemy.VisualTransform.position = enemy.Position;
+                float distToPlayer = Vector3.Distance(enemy.Position, playerPos);
+
+                // Collision Damage Check (Distance < HitRadius)
+                if (distToPlayer <= HitRadius && PlayerController.Instance != null && PlayerController.Instance.CurrentHealth > 0)
+                {
+                    PlayerController.Instance.TakeDamage(5f);
+                    
+                    // Bounce enemy back slightly
+                    Vector3 bounceDir = (enemy.Position - playerPos).normalized;
+                    bounceDir.y = 0;
+                    enemy.Position += bounceDir * 2.0f; 
+                    enemy.VisualTransform.position = enemy.Position;
+                    
+                    _activeEnemies[i] = enemy;
+                    continue; // Skip movement this frame
+                }
+
+                if (enemy.EnemyType == 0) // Melee
+                {
+                    // Move directly toward player
+                    Vector3 dirToPlayer = (playerPos - enemy.Position).normalized;
+                    enemy.Position += dirToPlayer * enemy.MoveSpeed * dt;
+                    enemy.VisualTransform.position = enemy.Position;
+                }
+                else if (enemy.EnemyType == 1) // Ranged
+                {
+                    if (distToPlayer > 10f)
+                    {
+                        // Move closer
+                        Vector3 dirToPlayer = (playerPos - enemy.Position).normalized;
+                        enemy.Position += dirToPlayer * enemy.MoveSpeed * dt;
+                        enemy.VisualTransform.position = enemy.Position;
+                    }
+                    else
+                    {
+                        // Stop and shoot
+                        enemy.AttackCooldown -= dt;
+                        if (enemy.AttackCooldown <= 0f)
+                        {
+                            enemy.AttackCooldown = 2.0f; // Reset CD
+                            
+                            // Fire projectile
+                            var ctx = new AbilityContext
+                            {
+                                ExecutionShape = SkillShape.Projectile,
+                                FinalDamage = 10f,
+                                FinalProjectileSpeed = 8f,
+                                FinalProjectileCount = 1
+                            };
+                            Vector3 dirToPlayer = (playerPos - enemy.Position).normalized;
+                            SpawnProjectile(ctx, enemy.Position, dirToPlayer);
+                        }
+                    }
+                }
                 
                 _activeEnemies[i] = enemy;
             }
@@ -365,7 +414,7 @@ namespace Faust.Simulation
         }
 
         // For testing/spawning enemies
-        public void SpawnEnemy(Vector3 pos, float health, float speed)
+        public void SpawnEnemy(Vector3 pos, float health, float speed, int enemyType = 0)
         {
             if (_enemyPool.Count == 0) return;
 
@@ -373,12 +422,21 @@ namespace Faust.Simulation
             eTrans.position = pos;
             eTrans.gameObject.SetActive(true);
 
+            // Paint orange if ranged (type 1), else red (type 0)
+            var renderer = eTrans.GetComponent<MeshRenderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = enemyType == 1 ? new Color(1f, 0.5f, 0f) : Color.red;
+            }
+
             _activeEnemies.Add(new EnemyBody
             {
                 Position = pos,
                 MoveSpeed = speed,
                 currentHealth = health,
-                VisualTransform = eTrans
+                VisualTransform = eTrans,
+                EnemyType = enemyType,
+                AttackCooldown = 2.0f // Initial cooldown for ranged
             });
         }
     }
@@ -406,5 +464,7 @@ namespace Faust.Simulation
         public float MoveSpeed;
         public float currentHealth;
         public Transform VisualTransform;
+        public int EnemyType; // 0 = Melee, 1 = Ranged
+        public float AttackCooldown;
     }
 }

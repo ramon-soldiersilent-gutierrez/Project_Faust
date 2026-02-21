@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using Faust.Rails;
 
@@ -6,6 +7,8 @@ namespace Faust.Simulation
     public class PlayerController : MonoBehaviour
     {
         public static PlayerController Instance { get; private set; }
+
+        private Renderer _renderer;
 
         [Header("Stats")]
         public float MoveSpeed = 5f;
@@ -40,10 +43,10 @@ namespace Faust.Simulation
             CurrentLevel = StartingLevel;
             SkillPoints = Mathf.Max(0, CurrentLevel - 1);
 
-            var renderer = GetComponent<Renderer>();
-            if (renderer != null)
+            _renderer = GetComponent<Renderer>();
+            if (_renderer != null)
             {
-                renderer.material.color = Color.green;
+                _renderer.material.color = Color.green;
             }
         }
 
@@ -121,14 +124,23 @@ namespace Faust.Simulation
 
         private void ExecuteSlot(int slotIndex)
         {
-            // Fire default projectile skill for Agent A's requirement as a fallback generic test
+            // For Phase 9, Mouse0 (0) = Kinetic_Projectile, Mouse1 (1) = Kinetic_Sweep
+            // The rest are stubbed Projectiles for now
+            
+            SkillShape shape = SkillShape.Projectile;
+            
+            if (slotIndex == 1) // Mouse1
+            {
+                shape = SkillShape.ForwardSweep;
+            }
+
             var ctx = new AbilityContext
             {
-                ExecutionShape = SkillShape.Projectile,
+                ExecutionShape = shape,
                 FinalDamage = BaseDamage,
                 FinalProjectileSpeed = BaseProjectileSpeed,
                 FinalProjectileCount = BaseProjectileCount,
-                FinalAreaRadius = 1f,
+                FinalAreaRadius = 3f, // Larger for sweep testing
                 FinalCastTime = 0.1f
             };
 
@@ -142,10 +154,21 @@ namespace Faust.Simulation
             if (!isCurseDamage)
             {
                 CombatEventBus.OnPlayerDamaged?.Invoke(amount);
+                StartCoroutine(FlashDamageRoutine());
             }
             if (CurrentHealth <= 0)
             {
                 // Handle Death
+            }
+        }
+
+        private IEnumerator FlashDamageRoutine()
+        {
+            if (_renderer != null)
+            {
+                _renderer.material.color = Color.red;
+                yield return new WaitForSeconds(0.1f);
+                _renderer.material.color = Color.green;
             }
         }
 
