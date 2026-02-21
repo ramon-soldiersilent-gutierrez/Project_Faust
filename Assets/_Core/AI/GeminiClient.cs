@@ -105,7 +105,7 @@ namespace Faust.AI
 
                 while (!operation.isDone)
                 {
-                    await Task.Yield();
+                    await Task.Delay(15);
                 }
 
                 if (request.result != UnityWebRequest.Result.Success)

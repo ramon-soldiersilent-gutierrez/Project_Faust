@@ -29,6 +29,7 @@ namespace Faust.UI
         // UI State
         public bool IsForgeVisible { get; set; } = false;
         public bool IsInventoryVisible { get; set; } = false;
+        private ContractModel _hoveredItem;
 
         private void Awake()
         {
@@ -37,9 +38,15 @@ namespace Faust.UI
 
         private void OnGUI()
         {
+            _hoveredItem = null; // Reset every frame
             DrawHelperText();
             if (IsForgeVisible) DrawForgeWindow();
             if (IsInventoryVisible) DrawCharacterSheetWindow();
+
+            if (_hoveredItem != null && IsInventoryVisible)
+            {
+                DrawItemTooltip(_hoveredItem);
+            }
         }
 
         private void DrawHelperText()
@@ -178,59 +185,18 @@ namespace Faust.UI
             {
                 // Item Base Type and Flavor
                 GUILayout.Label($"<color=#888888><i>{model.SpriteKeyword.Replace('_', ' ')}</i></color>", style);
-                
-                // Divider
-                GUILayout.Label("<color=#555555>--------</color>", style);
-
-                // Modifiers (Magic/Blue)
-                if (model.DamageModifier != 1.0f)
-                {
-                    float pct = (model.DamageModifier - 1f) * 100f;
-                    string sign = pct > 0 ? "+" : "";
-                    GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% to Global Damage</color>", style);
-                }
-                
-                if (model.SpeedModifier != 1.0f)
-                {
-                    float pct = (model.SpeedModifier - 1f) * 100f;
-                    string sign = pct > 0 ? "+" : "";
-                    GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% increased Action Speed</color>", style);
-                }
-                
-                if (model.SizeModifier != 1.0f)
-                {
-                    float pct = (model.SizeModifier - 1f) * 100f;
-                    string sign = pct > 0 ? "+" : "";
-                    GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% increased Area of Effect</color>", style);
-                }
-                
-                // Granted Skills & Boons (Implicit or Explicit features)
-                if (!string.IsNullOrEmpty(model.GrantedSkillID))
-                {
-                    GUILayout.Label($"<color=#FFFFFF>Grants Skill: {model.GrantedSkillID}</color>", style);
-                }
-                
-                if (model.BoonNodeIDs != null && model.BoonNodeIDs.Length > 0)
-                {
-                    GUILayout.Label($"<color=#00FF00>Has Active Boon: {model.BoonNodeIDs[0]}</color>", style);
-                    GUILayout.Space(2);
-                }
-                
-                if (model.CurseNodeIDs != null && model.CurseNodeIDs.Length > 0)
-                {
-                    GUILayout.Label($"<color=#FF0000>Cursed with: {model.CurseNodeIDs[0]}</color>", style);
-                    GUILayout.Space(2);
-                }
-                
-                // Divider
-                GUILayout.Label("<color=#555555>--------</color>", style);
-                
-                // Flavor text (Unique/Orange/Brown vibe)
-                GUILayout.Label($"<color=#AF6025><i>\"{model.FlavorText}\"</i></color>", style);
-                GUILayout.Space(5);
             }
             
             GUILayout.EndVertical();
+            
+            if (model != null && Event.current.type == EventType.Repaint)
+            {
+                Rect slotRect = GUILayoutUtility.GetLastRect();
+                if (slotRect.Contains(Event.current.mousePosition))
+                {
+                    _hoveredItem = model;
+                }
+            }
         }
 
         private void DrawDropdown(string category, ref ContractModel equippedSlot, GUIStyle style)
@@ -258,12 +224,78 @@ namespace Faust.UI
                             Faust.StatsAndHooks.HookLifecycleManager.Instance.EquipItem(item);
                         break;
                     }
+                    if (Event.current.type == EventType.Repaint)
+                    {
+                        if (GUILayoutUtility.GetLastRect().Contains(Event.current.mousePosition))
+                        {
+                            _hoveredItem = item;
+                        }
+                    }
                 }
             }
             
             if (!hasItems) GUILayout.Label("<color=gray>None in stash</color>", style);
             
             GUILayout.EndVertical();
+        }
+
+        private void DrawItemTooltip(ContractModel model)
+        {
+            Vector2 mousePos = Event.current.mousePosition;
+            float tooltipWidth = 250f;
+            float tooltipHeight = 150f; // flexible
+            
+            Rect tooltipRect = new Rect(mousePos.x + 15, mousePos.y + 15, tooltipWidth, tooltipHeight);
+            
+            // Keep on screen bounds
+            if (tooltipRect.xMax > Screen.width) tooltipRect.x -= (tooltipWidth + 30);
+            if (tooltipRect.yMax > Screen.height) tooltipRect.y -= (tooltipHeight + 30);
+
+            GUILayout.BeginArea(tooltipRect, GUI.skin.box);
+            GUIStyle style = new GUIStyle(GUI.skin.label) { richText = true, wordWrap = true, fontSize = 12 };
+
+            GUILayout.Label($"<color=#FFD700><b>{model.ItemName}</b></color>", style);
+            GUILayout.Label($"<color=#888888><i>{model.SpriteKeyword.Replace('_', ' ')}</i></color>", style);
+            GUILayout.Label("<color=#555555>--------</color>", style);
+
+            if (model.DamageModifier != 1.0f)
+            {
+                float pct = (model.DamageModifier - 1f) * 100f;
+                string sign = pct > 0 ? "+" : "";
+                GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% to Global Damage</color>", style);
+            }
+            if (model.SpeedModifier != 1.0f)
+            {
+                float pct = (model.SpeedModifier - 1f) * 100f;
+                string sign = pct > 0 ? "+" : "";
+                GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% increased Action Speed</color>", style);
+            }
+            if (model.SizeModifier != 1.0f)
+            {
+                float pct = (model.SizeModifier - 1f) * 100f;
+                string sign = pct > 0 ? "+" : "";
+                GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% increased Area of Effect</color>", style);
+            }
+
+            if (!string.IsNullOrEmpty(model.GrantedSkillID))
+            {
+                GUILayout.Label($"<color=#FFFFFF>Grants Skill: {model.GrantedSkillID}</color>", style);
+            }
+
+            if (model.BoonNodeIDs != null && model.BoonNodeIDs.Length > 0)
+            {
+                GUILayout.Label($"<color=#00FF00>Has Active Boon: {model.BoonNodeIDs[0]}</color>", style);
+            }
+
+            if (model.CurseNodeIDs != null && model.CurseNodeIDs.Length > 0)
+            {
+                GUILayout.Label($"<color=#FF0000>Cursed with: {model.CurseNodeIDs[0]}</color>", style);
+            }
+
+            GUILayout.Label("<color=#555555>--------</color>", style);
+            GUILayout.Label($"<color=#AF6025><i>\"{model.FlavorText}\"</i></color>", style);
+            
+            GUILayout.EndArea();
         }
 
         public void AddStashItem(ContractModel model)
