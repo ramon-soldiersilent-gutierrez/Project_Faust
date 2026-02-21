@@ -53,8 +53,18 @@ namespace Faust.StatsAndHooks
         {
             switch (id)
             {
-                // Agent B implements these
-                // case "Hook_VampiricOnHit": return new VampiricHook();
+                // Boons
+                case "Boon_DamageSpike": return new DamageSpikeHook();
+                case "Boon_MachineGun": return new MachineGunHook();
+                case "Boon_Multicast": return new MulticastHook();
+                case "Boon_Vampiric": return new VampiricHook();
+                
+                // Curses
+                case "Curse_TeleportOnHit": return new TeleportOnHitHook();
+                case "Curse_GlassCannon": return new GlassCannonHook();
+                case "Curse_SelfDamage": return new SelfDamageHook();
+                case "Curse_Rooted": return new RootedHook();
+                
                 default: 
                     Debug.LogWarning($"HookRegistry: Unrecognized hook ID {id}");
                     return null;
