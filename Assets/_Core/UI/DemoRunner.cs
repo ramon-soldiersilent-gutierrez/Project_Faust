@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Faust.Rails;
+using Faust.StatsAndHooks;
 
 namespace Faust.UI
 {
