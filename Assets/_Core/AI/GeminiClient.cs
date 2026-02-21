@@ -54,7 +54,7 @@ namespace Faust.AI
 
     public class GeminiClient
     {
-        private const string API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={0}";
+        private const string API_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={0}";
         private readonly string _apiKey;
 
         public GeminiClient(string apiKey)
