@@ -106,7 +106,7 @@ You must return only raw JSON matching this literal schema exactly without any m
 }}";
         }
 
-        private string BuildSkillTreeSystemPrompt(int playerLevel, string currentSkills, string theme)
+    private string BuildSkillTreeSystemPrompt(int playerLevel, string currentSkills, string theme)
         {
             return $@"You are the Faustian Forge. Generate a new 2D web of Skill Tree Nodes.
 Mortal's Current Level: {playerLevel}
@@ -130,8 +130,8 @@ Respond ONLY with valid JSON matching this schema:
       ""gridX"": 0,
       ""gridY"": 0,
       ""isKeystone"": false,
-      ""grantedBoons"": [{{ ""id"": ""string"", ""magnitude"": 1.0 }}],
-      ""grantedCurses"": [{{ ""id"": ""string"", ""magnitude"": 1.0 }}],
+      ""grantedBoons"": [{{ ""id"": ""Boon_DamageSpike"" or ""Boon_MachineGun"" or ""Boon_Multicast"" or ""Boon_Vampiric"", ""magnitude"": 1.0 }}],
+      ""grantedCurses"": [{{ ""id"": ""Curse_TeleportOnHit"" or ""Curse_GlassCannon"" or ""Curse_SelfDamage"" or ""Curse_Rooted"", ""magnitude"": 1.0 }}],
       ""damageDelta"": 0.05,
       ""speedDelta"": 0.05,
       ""sizeDelta"": 0.0

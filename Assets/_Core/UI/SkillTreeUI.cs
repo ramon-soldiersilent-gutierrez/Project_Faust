@@ -19,6 +19,10 @@ namespace Faust.UI
         private Dictionary<string, SkillTreeNode> _nodeMap = new Dictionary<string, SkillTreeNode>();
 
         public bool IsVisible { get; set; } = false;
+        
+        // Notification State
+        private bool _showNotification = false;
+        private string _notificationText = "";
 
         private void Awake()
         {
@@ -59,9 +63,22 @@ namespace Faust.UI
                 }
             }
             
-            // Force open the UI and close others when the AI finishes computing the tree
-            if (UIManager.Instance != null) UIManager.Instance.CloseAllMenus();
-            IsVisible = true;
+            // Notify player instead of forcing menu open
+            ShowNotification($"New skill chunk '{chunk.ChunkName}' manifested in the web. Press T.");
+        }
+
+        private void ShowNotification(string msg)
+        {
+            _notificationText = msg;
+            _showNotification = true;
+            StopAllCoroutines();
+            StartCoroutine(NotificationRoutine());
+        }
+
+        private IEnumerator NotificationRoutine()
+        {
+            yield return new WaitForSeconds(3.5f);
+            _showNotification = false;
         }
 
         public void Clear()
@@ -102,6 +119,20 @@ namespace Faust.UI
 
         private void OnGUI()
         {
+            if (_showNotification && !IsVisible)
+            {
+                GUIStyle notifStyle = new GUIStyle(GUI.skin.box)
+                {
+                    alignment = TextAnchor.MiddleCenter,
+                    fontSize = 16,
+                    fontStyle = FontStyle.Bold
+                };
+                notifStyle.normal.textColor = new Color(0.8f, 0.4f, 1f); // Purple void color
+                
+                Rect notifRect = new Rect(Screen.width / 2f - 200f, Screen.height - 150f, 400, 60);
+                GUI.Box(notifRect, _notificationText, notifStyle);
+            }
+
             if (!IsVisible) return;
 
             if (_currentChunk == null)
