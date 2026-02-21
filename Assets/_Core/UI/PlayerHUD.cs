@@ -120,6 +120,16 @@ namespace Faust.UI
             {
                 Rect slotRect = new Rect(startX + (i * (slotSize + padding)), startY, slotSize, slotSize);
 
+                Color defaultColor = GUI.backgroundColor;
+                if ((i == 0 && Input.GetMouseButton(0)) || (i == 1 && Input.GetMouseButton(1)))
+                {
+                    GUI.backgroundColor = Color.white;
+                }
+                else
+                {
+                    GUI.backgroundColor = Color.gray;
+                }
+
                 if (ActionSlotFrame != null)
                 {
                     GUI.DrawTexture(slotRect, ActionSlotFrame);
@@ -129,6 +139,8 @@ namespace Faust.UI
                     // Fallback block if no texture dragged in
                     GUI.Box(slotRect, "");
                 }
+                
+                GUI.backgroundColor = defaultColor;
 
                 // Draw input binding text
                 GUI.Label(slotRect, bindings[i], labelStyle);

@@ -20,6 +20,10 @@ namespace Faust.UI
         private ContractModel _weaponSlot;
         private ContractModel _armorSlot;
         private ContractModel _accessorySlot;
+        
+        // JRPG Stash State
+        public List<ContractModel> PlayerStash = new List<ContractModel>();
+        private string _activeDropdownSlot = ""; // "Weapon", "Armor", "Accessory" or ""
 
         // UI State
         public bool IsForgeVisible { get; set; } = false;
@@ -132,10 +136,15 @@ namespace Faust.UI
             GUILayout.Space(5);
             
             DrawSlot("Weapon", _weaponSlot, richTextLabel);
+            if (_activeDropdownSlot == "Weapon") DrawDropdown("Weapon", ref _weaponSlot, richTextLabel);
+            
             GUILayout.Space(5);
             DrawSlot("Armor", _armorSlot, richTextLabel);
+            if (_activeDropdownSlot == "Armor") DrawDropdown("Armor", ref _armorSlot, richTextLabel);
+            
             GUILayout.Space(5);
             DrawSlot("Accessory", _accessorySlot, richTextLabel);
+            if (_activeDropdownSlot == "Accessory") DrawDropdown("Accessory", ref _accessorySlot, richTextLabel);
             
             GUILayout.EndVertical();
             
@@ -145,7 +154,7 @@ namespace Faust.UI
 
         private void DrawSlot(string slotName, ContractModel model, GUIStyle style)
         {
-            GUILayout.BeginHorizontal();
+            GUILayout.BeginHorizontal(GUI.skin.box);
             GUILayout.Label(slotName, GUILayout.Width(80));
             if (model == null)
             {
@@ -153,9 +162,51 @@ namespace Faust.UI
             }
             else
             {
-                GUILayout.Label($"<color=green>{model.ItemName}</color> ({model.SpriteKeyword})", style);
+                GUILayout.Label($"<color=green>{model.ItemName}</color> (+{(model.DamageModifier-1f)*100f}%)", style);
+            }
+            
+            if (GUILayout.Button("Select", GUILayout.Width(60)))
+            {
+                _activeDropdownSlot = _activeDropdownSlot == slotName ? "" : slotName;
             }
             GUILayout.EndHorizontal();
+        }
+
+        private void DrawDropdown(string category, ref ContractModel equippedSlot, GUIStyle style)
+        {
+            GUILayout.BeginVertical(GUI.skin.box);
+            GUILayout.Label($"<i>Available {category}s:</i>", style);
+            
+            bool hasItems = false;
+            for (int i = 0; i < PlayerStash.Count; i++)
+            {
+                var item = PlayerStash[i];
+                if (item.EquipSlot == category)
+                {
+                    hasItems = true;
+                    if (GUILayout.Button($"> {item.ItemName} (+{(item.DamageModifier-1f)*100f}%)"))
+                    {
+                        // Swap
+                        if (equippedSlot != null) PlayerStash.Add(equippedSlot);
+                        equippedSlot = item;
+                        PlayerStash.RemoveAt(i);
+                        
+                        _activeDropdownSlot = ""; // Close
+                        if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)
+                            Faust.StatsAndHooks.HookLifecycleManager.Instance.EquipItem(item);
+                        break;
+                    }
+                }
+            }
+            
+            if (!hasItems) GUILayout.Label("<color=gray>None in stash</color>", style);
+            
+            GUILayout.EndVertical();
+        }
+
+        public void AddStashItem(ContractModel model)
+        {
+            PlayerStash.Add(model);
         }
 
         public void ClearInventory()
@@ -163,6 +214,8 @@ namespace Faust.UI
             _weaponSlot = null;
             _armorSlot = null;
             _accessorySlot = null;
+            PlayerStash.Clear();
+            _activeDropdownSlot = "";
         }
 
         private void OnForgeButtonClicked()

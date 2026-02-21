@@ -220,22 +220,21 @@ namespace Faust.UI
 
         private IEnumerator GenerateMockTree()
         {
-            yield return new WaitForSeconds(1.0f);
-            
             var chunk = new SkillTreeChunk
             {
                 ChunkName = "The Bloodstained Path",
                 Nodes = new SkillTreeNode[]
                 {
                     new SkillTreeNode { NodeID = "n0", DisplayName = "Start", GridX = 0, GridY = 0, ConnectedNodeIDs = new[] {"n1", "n2"}, FlavorText = "The beginning." },
-                    new SkillTreeNode { NodeID = "n1", DisplayName = "Damage+", GridX = 1, GridY = -1, ConnectedNodeIDs = new[] {"n3"}, FlavorText = "Blood flows." },
-                    new SkillTreeNode { NodeID = "n2", DisplayName = "Speed+", GridX = 1, GridY = 1, ConnectedNodeIDs = new[] {"n3"}, FlavorText = "Heart pounds." },
-                    new SkillTreeNode { NodeID = "n3", DisplayName = "Toll of Blood", GridX = 2, GridY = 0, IsKeystone = true, FlavorText = "Pay the ultimate price.", GrantedBoonIDs = new[] {"Boon_DamageSpike"}, GrantedCurseIDs = new[] {"Curse_SelfDamage"} }
+                    new SkillTreeNode { NodeID = "n1", DisplayName = "Damage+", GridX = 1, GridY = -1, ConnectedNodeIDs = new[] {"n3"}, FlavorText = "Blood flows.", DamageDelta = 0.5f }, // +50% Damage
+                    new SkillTreeNode { NodeID = "n2", DisplayName = "Speed+", GridX = 1, GridY = 1, ConnectedNodeIDs = new[] {"n3"}, FlavorText = "Heart pounds.", SpeedDelta = 0.5f },   // +50% Speed
+                    new SkillTreeNode { NodeID = "n3", DisplayName = "Toll of Blood", GridX = 2, GridY = 0, IsKeystone = true, FlavorText = "Pay the ultimate price.", GrantedBoonIDs = new[] {"Boon_DamageSpike", "Boon_Multicast"}, GrantedCurseIDs = new[] {"Curse_SelfDamage"} }
                 }
             };
             
             AIConsole.Instance?.Log("Skill Tree Received!");
             LoadChunk(chunk);
+            yield break;
         }
     }
 }

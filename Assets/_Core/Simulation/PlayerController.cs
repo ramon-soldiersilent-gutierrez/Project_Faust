@@ -138,7 +138,10 @@ namespace Faust.Simulation
             }
             if (CurrentHealth <= 0)
             {
-                // Handle Death
+                if (Faust.UI.UIManager.Instance != null)
+                {
+                    Faust.UI.UIManager.Instance.ShowGameOver();
+                }
             }
         }
 

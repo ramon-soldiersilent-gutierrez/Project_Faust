@@ -135,35 +135,49 @@ namespace Faust.Simulation
                 bool despawned = false;
 
                 // Hit Detection (Distance based)
-                for (int j = _activeEnemies.Count - 1; j >= 0; j--)
+                if (proj.IsEnemy)
                 {
-                    var enemy = _activeEnemies[j];
-                    if (Vector3.Distance(proj.Position, enemy.Position) <= HitRadius)
+                    if (PlayerController.Instance != null && PlayerController.Instance.CurrentHealth > 0)
                     {
-                        // Hit registered
-                        CombatEventBus.OnHit?.Invoke(new HitInfo
+                        if (Vector3.Distance(proj.Position, playerPos) <= HitRadius)
                         {
-                            Target = enemy.VisualTransform,
-                            Instigator = PlayerTransform,
-                            Context = proj.Context
-                        });
-
-                        enemy.currentHealth -= proj.Context.FinalDamage;
-                        
-                        if (enemy.currentHealth <= 0)
-                        {
-                            CombatEventBus.OnEnemyKilled?.Invoke(10f); // Grant flat XP
-                            enemy.VisualTransform.gameObject.SetActive(false);
-                            _enemyPool.Enqueue(enemy.VisualTransform);
-                            _activeEnemies.RemoveAt(j);
+                            PlayerController.Instance.TakeDamage(proj.Context.FinalDamage);
+                            despawned = true;
                         }
-                        else
+                    }
+                }
+                else
+                {
+                    for (int j = _activeEnemies.Count - 1; j >= 0; j--)
+                    {
+                        var enemy = _activeEnemies[j];
+                        if (Vector3.Distance(proj.Position, enemy.Position) <= HitRadius)
                         {
-                            _activeEnemies[j] = enemy; // Apply health change
-                        }
+                            // Hit registered
+                            CombatEventBus.OnHit?.Invoke(new HitInfo
+                            {
+                                Target = enemy.VisualTransform,
+                                Instigator = PlayerTransform,
+                                Context = proj.Context
+                            });
 
-                        despawned = true;
-                        break; // Projectile dies on first hit for now
+                            enemy.currentHealth -= proj.Context.FinalDamage;
+                            
+                            if (enemy.currentHealth <= 0)
+                            {
+                                CombatEventBus.OnEnemyKilled?.Invoke(10f); // Grant flat XP
+                                enemy.VisualTransform.gameObject.SetActive(false);
+                                _enemyPool.Enqueue(enemy.VisualTransform);
+                                _activeEnemies.RemoveAt(j);
+                            }
+                            else
+                            {
+                                _activeEnemies[j] = enemy; // Apply health change
+                            }
+
+                            despawned = true;
+                            break; // Projectile dies on first hit for now
+                        }
                     }
                 }
 
@@ -278,7 +292,8 @@ namespace Faust.Simulation
                             Velocity = dir.normalized * context.FinalProjectileSpeed,
                             DistanceTraveled = 0f,
                             Context = context,
-                            VisualTransform = pTrans
+                            VisualTransform = pTrans,
+                            IsEnemy = false
                         };
 
                         _activeProjectiles.Add(pBody);
@@ -382,7 +397,8 @@ namespace Faust.Simulation
                 Velocity = direction.normalized * context.FinalProjectileSpeed,
                 DistanceTraveled = 0f,
                 Context = context,
-                VisualTransform = pTrans
+                VisualTransform = pTrans,
+                IsEnemy = true
             };
 
             _activeProjectiles.Add(pBody);
@@ -449,6 +465,7 @@ namespace Faust.Simulation
         public float DistanceTraveled;
         public AbilityContext Context;
         public Transform VisualTransform;
+        public bool IsEnemy;
     }
 
     public struct AoEBody

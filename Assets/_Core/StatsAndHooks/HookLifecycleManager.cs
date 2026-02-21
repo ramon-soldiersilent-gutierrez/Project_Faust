@@ -151,8 +151,24 @@ namespace Faust.StatsAndHooks
 
             if (Faust.Simulation.PlayerController.Instance != null)
             {
-                // Damage = Base(10) * (1 + Sum(Increased)) * Product(More)
-                Faust.Simulation.PlayerController.Instance.BaseDamage = 10f * CurrentDamageMultiplier;
+                int levelBonus = 0;
+                if (LevelManager.Instance != null)
+                {
+                    levelBonus = LevelManager.Instance.CurrentLevel - 1;
+                }
+                
+                // Damage = (Base(10) + LevelBonus) * (1 + Sum(Increased)) * Product(More)
+                Faust.Simulation.PlayerController.Instance.BaseDamage = (10f + (levelBonus * 2.5f)) * CurrentDamageMultiplier;
+                
+                // HP Level Scaling
+                float oldMaxHP = Faust.Simulation.PlayerController.Instance.MaxHealth;
+                Faust.Simulation.PlayerController.Instance.MaxHealth = 100f + (levelBonus * 10f);
+                
+                if (Faust.Simulation.PlayerController.Instance.MaxHealth > oldMaxHP)
+                {
+                    Faust.Simulation.PlayerController.Instance.Heal(Faust.Simulation.PlayerController.Instance.MaxHealth - oldMaxHP);
+                }
+
                 Faust.Simulation.PlayerController.Instance.BaseProjectileSpeed = 20f * CurrentSpeedMultiplier;
             }
             
