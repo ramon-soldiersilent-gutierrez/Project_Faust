@@ -86,13 +86,13 @@ namespace Faust.StatsAndHooks
 
             foreach (var node in ActiveTreeNodes)
             {
-                if (node.GrantedBoons != null)
+                if (node.GrantedBoonIDs != null)
                 {
-                    foreach (var id in node.GrantedBoons) { InjectHook(id); }
+                    foreach (var id in node.GrantedBoonIDs) { InjectHook(id); }
                 }
-                if (node.GrantedCurses != null)
+                if (node.GrantedCurseIDs != null)
                 {
-                    foreach (var id in node.GrantedCurses) { InjectHook(id); }
+                    foreach (var id in node.GrantedCurseIDs) { InjectHook(id); }
                 }
 
                 // Treat Tree Deltas as "Increased" additive modifiers
