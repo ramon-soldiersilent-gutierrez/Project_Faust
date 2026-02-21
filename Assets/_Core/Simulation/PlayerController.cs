@@ -120,8 +120,6 @@ namespace Faust.Simulation
         // Called by DemoAPI (simulated) or externally
         public void ResetPlayer()
         {
-        public void ResetPlayer()
-        {
             transform.position = Vector3.zero;
             CurrentHealth = MaxHealth;
             IsRooted = false;
