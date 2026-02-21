@@ -167,8 +167,8 @@ namespace Faust.Simulation
                             {
                                 CombatEventBus.OnEnemyKilled?.Invoke(10f); // Grant flat XP
                                 
-                                // Organic 25% drop chance on death
-                                if (LootChestSpawner.Instance != null && UnityEngine.Random.value < 0.25f)
+                                // Organic 80% drop chance on death
+                                if (LootChestSpawner.Instance != null && UnityEngine.Random.value < 0.80f)
                                 {
                                     LootChestSpawner.Instance.SpawnChestAt(enemy.Position);
                                 }

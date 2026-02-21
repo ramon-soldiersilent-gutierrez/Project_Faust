@@ -97,14 +97,43 @@ namespace Faust.Simulation
             string[] slots = new string[] { "Weapon", "Armor", "Accessory" };
             string chosenSlot = slots[Random.Range(0, slots.Length)];
 
+            float rarityRoll = Random.value;
+            string rarityName = "Common";
+            float dmgBase = 1.0f;
+            float spdBase = 1.0f;
+            string boon = null;
+            
+            if (rarityRoll < 0.20f)
+            {
+                rarityName = "Rare";
+                dmgBase = Random.Range(1.4f, 1.8f);
+                spdBase = Random.Range(1.2f, 1.4f);
+                string[] boons = { "Boon_DamageSpike", "Boon_Multicast", "Boon_Vampiric" };
+                boon = boons[Random.Range(0, boons.Length)];
+            }
+            else if (rarityRoll < 0.60f)
+            {
+                rarityName = "Magic";
+                dmgBase = Random.Range(1.15f, 1.35f);
+                spdBase = Random.Range(1.05f, 1.15f);
+            }
+            else
+            {
+                rarityName = "Normal";
+                dmgBase = Random.Range(1.0f, 1.10f);
+                spdBase = Random.Range(0.95f, 1.05f);
+            }
+
             var loot = new ContractModel
             {
-                ItemName = $"Dropped {chosenSlot}",
-                FlavorText = "Looted from the abyss.",
+                ItemName = $"{rarityName} {chosenSlot}",
+                FlavorText = $"A {rarityName.ToLower()} find.",
                 EquipSlot = chosenSlot,
                 SpriteKeyword = $"{chosenSlot}_Generic",
-                DamageModifier = Random.Range(1.05f, 1.25f),
-                SpeedModifier = Random.Range(1.0f, 1.15f)
+                DamageModifier = dmgBase,
+                SpeedModifier = spdBase,
+                SizeModifier = 1.0f,
+                BoonNodeIDs = boon != null ? new string[] { boon } : null
             };
 
             Debug.Log($"Looted: {loot.ItemName}! Adding to Stash.");
