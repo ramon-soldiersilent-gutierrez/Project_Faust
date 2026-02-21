@@ -10,7 +10,7 @@ namespace Faust.AI
         public static AIPipeline Instance { get; private set; }
 
         [Header("Gemini Configuration")]
-        [SerializeField] private int timeoutSeconds = 5;
+        [SerializeField] private int timeoutSeconds = 60;
 
         private GeminiClient _client;
 
