@@ -14,6 +14,7 @@ namespace Faust.StatsAndHooks
 
         public List<ContractModel> EquippedItems = new List<ContractModel>();
         public List<SkillTreeNode> ActiveTreeNodes = new List<SkillTreeNode>();
+        public HashSet<string> AllocatedNodeIDs = new HashSet<string>();
 
         private void Awake()
         {
@@ -47,12 +48,25 @@ namespace Faust.StatsAndHooks
             }
         }
 
-        public void ActivateTreeNode(SkillTreeNode node)
+        public void ToggleNodeAllocation(SkillTreeNode node)
         {
-            if (!ActiveTreeNodes.Contains(node))
+            if (AllocatedNodeIDs.Contains(node.NodeID))
             {
+                // Can't refund points yet based on requirements, but maybe in future. Ignore click for now.
+                Debug.Log($"Node {node.NodeID} already allocated.");
+                return;
+            }
+
+            if (LevelManager.Instance != null && LevelManager.Instance.SpendSkillPoints(1))
+            {
+                AllocatedNodeIDs.Add(node.NodeID);
                 ActiveTreeNodes.Add(node);
                 RefreshAll();
+                Debug.Log($"Allocated Node {node.NodeID}. Points remaining: {LevelManager.Instance.AvailableSkillPoints}");
+            }
+            else
+            {
+                Debug.Log($"Not enough Skill Points to allocate {node.NodeID}.");
             }
         }
 
