@@ -12,43 +12,114 @@ namespace Faust.StatsAndHooks
         // The active list of injected gameplay logic behavior hooks
         private List<IHookInstance> _activeHooks = new List<IHookInstance>();
 
+        public List<ContractModel> EquippedItems = new List<ContractModel>();
+        public List<SkillTreeNode> ActiveTreeNodes = new List<SkillTreeNode>();
+
         private void Awake()
         {
             if (Instance == null) Instance = this;
             else Destroy(gameObject);
         }
 
+        // IContractRuntime implementation (Maintained for legacy DemoAPI calls)
         public void ApplyContract(ContractModel model)
+        {
+            EquipItem(model);
+        }
+
+        public void EquipItem(ContractModel model)
+        {
+            // If the item has a slot, remove the existing item in that slot
+            if (!string.IsNullOrEmpty(model.EquipSlot))
+            {
+                EquippedItems.RemoveAll(i => i.EquipSlot == model.EquipSlot);
+            }
+            EquippedItems.Add(model);
+            RefreshAll();
+        }
+
+        public void UnequipItem(ContractModel model)
+        {
+            if (EquippedItems.Contains(model))
+            {
+                EquippedItems.Remove(model);
+                RefreshAll();
+            }
+        }
+
+        public void ActivateTreeNode(SkillTreeNode node)
+        {
+            if (!ActiveTreeNodes.Contains(node))
+            {
+                ActiveTreeNodes.Add(node);
+                RefreshAll();
+            }
+        }
+
+        public void RefreshAll()
         {
             ClearAllHooks();
 
-            if (model.BoonNodeIDs != null)
+            float totalDamageMultiplier = 1.0f;
+            float totalSpeedMultiplier = 1.0f;
+
+            // 1. Process Equipped Items
+            foreach (var item in EquippedItems)
             {
-                foreach (var id in model.BoonNodeIDs)
+                if (item.BoonNodeIDs != null)
                 {
-                    var hook = HookRegistry.InstantiateHook(id);
-                    if (hook != null) { hook.Enable(); _activeHooks.Add(hook); }
+                    foreach (var id in item.BoonNodeIDs) { InjectHook(id); }
                 }
+                if (item.CurseNodeIDs != null)
+                {
+                    foreach (var id in item.CurseNodeIDs) { InjectHook(id); }
+                }
+
+                // Treat Item Modifiers as "More" multipliers
+                totalDamageMultiplier *= item.DamageModifier;
+                totalSpeedMultiplier *= item.SpeedModifier;
             }
 
-            if (model.CurseNodeIDs != null)
+            // 2. Process Skill Tree Nodes
+            float treeDamageIncreased = 0f;
+            float treeSpeedIncreased = 0f;
+
+            foreach (var node in ActiveTreeNodes)
             {
-                foreach (var id in model.CurseNodeIDs)
+                if (node.GrantedBoons != null)
                 {
-                    var hook = HookRegistry.InstantiateHook(id);
-                    if (hook != null) { hook.Enable(); _activeHooks.Add(hook); }
+                    foreach (var id in node.GrantedBoons) { InjectHook(id); }
                 }
+                if (node.GrantedCurses != null)
+                {
+                    foreach (var id in node.GrantedCurses) { InjectHook(id); }
+                }
+
+                // Treat Tree Deltas as "Increased" additive modifiers
+                treeDamageIncreased += node.DamageDelta;
+                treeSpeedIncreased += node.SpeedDelta;
             }
 
-            // Apply base stat modifiers from AI
+            // 3. Compile Global Stats to PlayerController (Simulation reads from this)
             if (Faust.Simulation.PlayerController.Instance != null)
             {
-                // Simple flat modifiers based on AI's multiplier output
-                Faust.Simulation.PlayerController.Instance.BaseDamage = 10f * model.DamageModifier;
-                Faust.Simulation.PlayerController.Instance.BaseProjectileSpeed = 20f * model.SpeedModifier;
+                // Damage = Base(10) * (1 + Sum(Increased)) * Product(More)
+                Faust.Simulation.PlayerController.Instance.BaseDamage = 10f * (1.0f + treeDamageIncreased) * totalDamageMultiplier;
+                Faust.Simulation.PlayerController.Instance.BaseProjectileSpeed = 20f * (1.0f + treeSpeedIncreased) * totalSpeedMultiplier;
             }
             
-            Debug.Log($"Contract Applied: {model.ItemName}");
+            Debug.Log($"Refreshed All Stats/Hooks. Items: {EquippedItems.Count}, Nodes: {ActiveTreeNodes.Count}");
+        }
+
+        private void InjectHook(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return;
+            var hook = HookRegistry.InstantiateHook(id);
+            if (hook != null)
+            {
+                hook.Enable();
+                _activeHooks.Add(hook);
+            }
         }
 
         public void ClearAllHooks()
