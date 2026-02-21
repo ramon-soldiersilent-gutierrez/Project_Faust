@@ -6,14 +6,33 @@ namespace Faust.UI
 {
     public class ContractUI : MonoBehaviour
     {
+        public static ContractUI Instance { get; private set; }
+
         [Header("IMGUI Settings")]
         public Rect UIRect = new Rect(420, 10, 300, 200);
+        public Rect InventoryRect = new Rect(420, 220, 300, 120);
 
         private string _wishText = "I want infinite power";
         private float _greedValue = 50f;
         private bool _isForging = false;
 
+        // Inventory State
+        private ContractModel _weaponSlot;
+        private ContractModel _armorSlot;
+        private ContractModel _accessorySlot;
+
+        private void Awake()
+        {
+            Instance = this;
+        }
+
         private void OnGUI()
+        {
+            DrawForgeWindow();
+            DrawInventoryWindow();
+        }
+
+        private void DrawForgeWindow()
         {
             GUILayout.BeginArea(UIRect, "Faustian Forge", GUI.skin.window);
 
@@ -27,13 +46,48 @@ namespace Faust.UI
             GUILayout.Space(20);
 
             GUI.enabled = !_isForging; // Disable button while forging
-            if (GUILayout.Button("FORGE CONTRACT", GUILayout.Height(40)))
+            if (GUILayout.Button("FORGE ITEM", GUILayout.Height(40)))
             {
                 OnForgeButtonClicked();
             }
             GUI.enabled = true;
 
             GUILayout.EndArea();
+        }
+
+        private void DrawInventoryWindow()
+        {
+            GUILayout.BeginArea(InventoryRect, "Equipped Contracts", GUI.skin.window);
+            
+            GUIStyle richTextLabel = new GUIStyle(GUI.skin.label) { richText = true };
+            
+            DrawSlot("Weapon", _weaponSlot, richTextLabel);
+            DrawSlot("Armor", _armorSlot, richTextLabel);
+            DrawSlot("Accessory", _accessorySlot, richTextLabel);
+            
+            GUILayout.EndArea();
+        }
+
+        private void DrawSlot(string slotName, ContractModel model, GUIStyle style)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(slotName, GUILayout.Width(80));
+            if (model == null)
+            {
+                GUILayout.Label("<color=gray>Empty</color>", style);
+            }
+            else
+            {
+                GUILayout.Label($"<color=green>{model.ItemName}</color> ({model.SpriteKeyword})", style);
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        public void ClearInventory()
+        {
+            _weaponSlot = null;
+            _armorSlot = null;
+            _accessorySlot = null;
         }
 
         private void OnForgeButtonClicked()
@@ -62,10 +116,16 @@ namespace Faust.UI
         {
             yield return new WaitForSeconds(1.5f);
             
+            // Randomly select an equip slot if simulating
+            string[] slots = new string[] { "Weapon", "Armor", "Accessory" };
+            string chosenSlot = slots[Random.Range(0, slots.Length)];
+
             var stubModel = new ContractModel
             {
-                ItemName = "Stub Contract",
+                ItemName = $"Stub {chosenSlot}",
                 FlavorText = "A placeholder answer.",
+                EquipSlot = chosenSlot,
+                SpriteKeyword = $"{chosenSlot}_Generic",
                 GrantedSkillID = "Kinetic_Projectile",
                 BoonNodeIDs = new string[] { "Boon_DamageSpike" },
                 CurseNodeIDs = new string[] { "Curse_GlassCannon" }
@@ -77,8 +137,13 @@ namespace Faust.UI
         private void OnContractReceived(ContractModel model)
         {
             AIConsole.Instance?.Log($"Received Contract:\n{JsonUtility.ToJson(model, true)}");
-
             _isForging = false;
+
+            // Slot it in the inventory
+            if (model.EquipSlot == "Weapon") _weaponSlot = model;
+            else if (model.EquipSlot == "Armor") _armorSlot = model;
+            else if (model.EquipSlot == "Accessory") _accessorySlot = model;
+            else _weaponSlot = model; // fallback
 
             // Apply the contract via the global runtime
             if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)

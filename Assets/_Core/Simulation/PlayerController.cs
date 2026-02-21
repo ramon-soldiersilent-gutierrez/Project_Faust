@@ -123,5 +123,17 @@ namespace Faust.Simulation
             CurrentHealth = MaxHealth;
             IsRooted = false;
         }
+
+        private void LateUpdate()
+        {
+            if (_mainCamera == null) return;
+
+            // Simple isometric camera lock
+            Vector3 targetCamPos = transform.position + new Vector3(0, 15f, -15f);
+            _mainCamera.transform.position = targetCamPos;
+            
+            // Standard Isometric look angle
+            _mainCamera.transform.rotation = Quaternion.Euler(45f, 0f, 0f);
+        }
     }
 }
