@@ -18,25 +18,16 @@ namespace Faust.UI
         private Vector2 _scrollPosition;
         private Dictionary<string, SkillTreeNode> _nodeMap = new Dictionary<string, SkillTreeNode>();
 
-        private bool _showSkillTree = false;
+        public bool IsVisible { get; set; } = false;
 
         private void Awake()
         {
             Instance = this;
         }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                _showSkillTree = !_showSkillTree;
-            }
-        }
-
         public void LoadChunk(SkillTreeChunk chunk)
         {
             _currentChunk = chunk;
-            _showSkillTree = true; // Auto-open when loaded
             _nodeMap.Clear();
             if (chunk != null)
             {
@@ -45,18 +36,22 @@ namespace Faust.UI
                     _nodeMap[node.NodeID] = node;
                 }
             }
+            
+            // Force open the UI and close others when the AI finishes computing the tree
+            if (UIManager.Instance != null) UIManager.Instance.CloseAllMenus();
+            IsVisible = true;
         }
 
         public void Clear()
         {
             _currentChunk = null;
             _nodeMap.Clear();
-            _showSkillTree = false;
+            IsVisible = false;
         }
 
         private void OnGUI()
         {
-            if (!_showSkillTree) return;
+            if (!IsVisible) return;
 
             if (_currentChunk == null)
             {
