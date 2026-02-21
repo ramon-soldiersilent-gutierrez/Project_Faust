@@ -1,6 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 using Faust.Rails;
 using System.Collections;
 
@@ -8,52 +6,55 @@ namespace Faust.UI
 {
     public class ContractUI : MonoBehaviour
     {
-        [Header("UI References")]
-        [SerializeField] private TMP_InputField wishInput;
-        [SerializeField] private Slider greedSlider;
-        [SerializeField] private Button forgeButton;
+        [Header("IMGUI Settings")]
+        public Rect UIRect = new Rect(420, 10, 300, 200);
 
-        private void Start()
+        private string _wishText = "I want infinite power";
+        private float _greedValue = 50f;
+        private bool _isForging = false;
+
+        private void OnGUI()
         {
-            if (forgeButton != null)
+            GUILayout.BeginArea(UIRect, "Faustian Forge", GUI.skin.window);
+
+            GUILayout.Label("Wish:");
+            _wishText = GUILayout.TextField(_wishText);
+
+            GUILayout.Space(10);
+            GUILayout.Label($"Greed Level: {Mathf.RoundToInt(_greedValue)}");
+            _greedValue = GUILayout.HorizontalSlider(_greedValue, 0f, 100f);
+
+            GUILayout.Space(20);
+
+            GUI.enabled = !_isForging; // Disable button while forging
+            if (GUILayout.Button("FORGE CONTRACT", GUILayout.Height(40)))
             {
-                forgeButton.onClick.AddListener(OnForgeButtonClicked);
+                OnForgeButtonClicked();
             }
+            GUI.enabled = true;
+
+            GUILayout.EndArea();
         }
 
-        public void OnForgeButtonClicked()
+        private void OnForgeButtonClicked()
         {
-            if (wishInput == null || greedSlider == null || forgeButton == null)
-            {
-                Debug.LogError("ContractUI: Missing UI references.");
-                return;
-            }
+            _isForging = true;
 
-            // Disable button to prevent spam while waiting for async AI response
-            forgeButton.interactable = false;
-
-            string wish = wishInput.text;
-            float greed = greedSlider.value; // expected 0-100 scale
-
-            // Deterministic Greed Tiers
-            // 0-30: Mild
-            // 31-70: Medium
-            // 71-100: Spicy
             int greedTier = 0;
-            if (greed <= 30) greedTier = 1;
-            else if (greed <= 70) greedTier = 2;
+            if (_greedValue <= 30) greedTier = 1;
+            else if (_greedValue <= 70) greedTier = 2;
             else greedTier = 3;
 
-            AIConsole.Instance?.Log($"Requesting Contract: Wish='{wish}', Greed={greed} (Tier {greedTier})");
+            AIConsole.Instance?.Log($"Requesting Contract: Wish='{_wishText}', Greed={_greedValue} (Tier {greedTier})");
 
             if (Faust.AI.AIPipeline.Instance != null)
             {
-                Faust.AI.AIPipeline.Instance.RequestContract(wish, greed, OnContractReceived);
+                Faust.AI.AIPipeline.Instance.RequestContract(_wishText, _greedValue, OnContractReceived);
             }
             else
             {
                 Debug.LogWarning("ContractUI: AIPipeline Instance not found! Using fallback simulator.");
-                StartCoroutine(SimulateAIResponse(wish, greedTier));
+                StartCoroutine(SimulateAIResponse(_wishText, greedTier));
             }
         }
 
@@ -77,9 +78,7 @@ namespace Faust.UI
         {
             AIConsole.Instance?.Log($"Received Contract:\n{JsonUtility.ToJson(model, true)}");
 
-            // Re-enable button
-            if (forgeButton != null)
-                forgeButton.interactable = true;
+            _isForging = false;
 
             // Apply the contract via the global runtime
             if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)
@@ -95,8 +94,7 @@ namespace Faust.UI
         private void OnContractFailed(string errorMsg)
         {
              AIConsole.Instance?.LogError($"Contract Failed: {errorMsg}");
-             if (forgeButton != null)
-                forgeButton.interactable = true;
+             _isForging = false;
         }
     }
 }
