@@ -10,6 +10,7 @@ namespace Faust.UI
         
         private List<string> _logEntries = new List<string>();
         private Vector2 _scrollPosition;
+        private bool _showConsole = false;
         
         [Header("IMGUI Settings")]
         public Rect ConsoleRect = new Rect(10, 10, 400, 300);
@@ -18,6 +19,14 @@ namespace Faust.UI
         {
             if (Instance == null) Instance = this;
             else Destroy(gameObject);
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.C))
+            {
+                _showConsole = !_showConsole;
+            }
         }
 
         public void Log(string message)
@@ -50,6 +59,8 @@ namespace Faust.UI
 
         private void OnGUI()
         {
+            if (!_showConsole) return;
+
             GUILayout.BeginArea(ConsoleRect, "AI Console", GUI.skin.window);
             _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
             

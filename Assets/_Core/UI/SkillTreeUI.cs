@@ -56,7 +56,19 @@ namespace Faust.UI
 
         private void OnGUI()
         {
-            if (!_showSkillTree || _currentChunk == null) return;
+            if (!_showSkillTree) return;
+
+            if (_currentChunk == null)
+            {
+                GUILayout.BeginArea(TreeRect, "Faustian Tree", GUI.skin.window);
+                GUILayout.Label("Skill Tree Empty.\nGenerate a tree to behold the Faustian Web.", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter });
+                if (GUILayout.Button("Simulate Skill Tree Generation", GUILayout.Height(40)))
+                {
+                    SimulateGenerateTree();
+                }
+                GUILayout.EndArea();
+                return;
+            }
 
             GUILayout.BeginArea(TreeRect, $"Faustian Tree: {_currentChunk.ChunkName}", GUI.skin.window);
             

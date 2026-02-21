@@ -22,8 +22,8 @@ namespace Faust.UI
         private ContractModel _accessorySlot;
 
         // UI State
-        private bool _showForge = true;
-        private bool _showInventory = true;
+        private bool _showForge = false;
+        private bool _showInventory = false;
 
         private void Awake()
         {
@@ -38,8 +38,23 @@ namespace Faust.UI
 
         private void OnGUI()
         {
+            DrawHelperText();
             if (_showForge) DrawForgeWindow();
             if (_showInventory) DrawInventoryWindow();
+        }
+
+        private void DrawHelperText()
+        {
+            GUIStyle helperStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.UpperRight,
+                fontSize = 14,
+                fontStyle = FontStyle.Bold
+            };
+            helperStyle.normal.textColor = Color.yellow;
+
+            Rect helperRect = new Rect(Screen.width - 350, 10, 340, 30);
+            GUI.Label(helperRect, "F: Forge | I: Inventory | T: Skill Tree | C: Console", helperStyle);
         }
 
         private void DrawForgeWindow()
