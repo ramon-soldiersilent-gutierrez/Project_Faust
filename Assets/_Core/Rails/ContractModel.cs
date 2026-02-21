@@ -9,6 +9,8 @@ namespace Faust.Rails
     {
         public string ItemName;
         public string FlavorText;
+        public string EquipSlot; // e.g. "Weapon", "Armor", "Accessory"
+        public string SpriteKeyword; // e.g. "Sword_Dark"
         
         public string GrantedSkillID; // e.g., "Kinetic_Projectile"
         

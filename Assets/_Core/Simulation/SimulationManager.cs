@@ -32,6 +32,8 @@ namespace Faust.Simulation
             InitializePools();
         }
 
+        private readonly List<AoEBody> _activeAoEs = new List<AoEBody>(20);
+
         private void InitializePools()
         {
             var projRoot = new GameObject("Projectiles_Pool").transform;
@@ -64,6 +66,50 @@ namespace Faust.Simulation
         {
             float dt = Time.deltaTime;
             Vector3 playerPos = PlayerTransform != null ? PlayerTransform.position : Vector3.zero;
+
+            // Tick delayed AoEs first
+            for (int i = _activeAoEs.Count - 1; i >= 0; i--)
+            {
+                var aoe = _activeAoEs[i];
+                aoe.RemainingDelay -= dt;
+
+                if (aoe.RemainingDelay <= 0f)
+                {
+                    // Blast!
+                    float radius = aoe.Context.FinalAreaRadius;
+                    for (int j = _activeEnemies.Count - 1; j >= 0; j--)
+                    {
+                        var enemy = _activeEnemies[j];
+                        if (Vector3.Distance(aoe.Position, enemy.Position) <= radius)
+                        {
+                            CombatEventBus.OnHit?.Invoke(new HitInfo
+                            {
+                                Target = enemy.VisualTransform,
+                                Instigator = PlayerTransform, // Assume player was instigator
+                                Context = aoe.Context
+                            });
+
+                            enemy.currentHealth -= aoe.Context.FinalDamage;
+                            if (enemy.currentHealth <= 0)
+                            {
+                                enemy.VisualTransform.gameObject.SetActive(false);
+                                _enemyPool.Enqueue(enemy.VisualTransform);
+                                _activeEnemies.RemoveAt(j);
+                            }
+                            else
+                            {
+                                _activeEnemies[j] = enemy;
+                            }
+                        }
+                    }
+
+                    _activeAoEs.RemoveAt(i);
+                }
+                else
+                {
+                    _activeAoEs[i] = aoe; // Update remaining time
+                }
+            }
 
             // Tick all active projectiles
             for (int i = _activeProjectiles.Count - 1; i >= 0; i--)
@@ -223,7 +269,31 @@ namespace Faust.Simulation
                     break;
 
                 case SkillShape.TargetedAoE:
-                    // Perform area blast
+                    // "Arcane_Aura": Mouse position ground blast
+                    Vector3 targetPos = Vector3.zero;
+                    if (Camera.main != null)
+                    {
+                        var groundPlane = new Plane(Vector3.up, Vector3.zero);
+                        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                        if (groundPlane.Raycast(ray, out float enter))
+                        {
+                            targetPos = ray.GetPoint(enter);
+                        }
+                    }
+
+                    _activeAoEs.Add(new AoEBody
+                    {
+                        Position = targetPos,
+                        RemainingDelay = context.FinalCastTime,
+                        Context = context
+                    });
+
+                    CombatEventBus.OnCast?.Invoke(new CastInfo
+                    {
+                        Position = targetPos,
+                        Direction = Vector3.up, // Signal it's a ground blast
+                        Context = context
+                    });
                     break;
             }
         }
@@ -269,6 +339,8 @@ namespace Faust.Simulation
             }
             _activeEnemies.Clear();
 
+            _activeAoEs.Clear();
+
             // Reset TimeScale
             Time.timeScale = 1f;
 
@@ -302,6 +374,13 @@ namespace Faust.Simulation
         public float DistanceTraveled;
         public AbilityContext Context;
         public Transform VisualTransform;
+    }
+
+    public struct AoEBody
+    {
+        public Vector3 Position;
+        public float RemainingDelay;
+        public AbilityContext Context;
     }
 
     public struct EnemyBody

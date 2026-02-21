@@ -44,7 +44,13 @@ namespace Faust.UI
             if (Faust.Simulation.PlayerController.Instance != null)
                 Faust.Simulation.PlayerController.Instance.ResetPlayer();
 
-            // 5. Clear AI Console
+            // 5. Clear UI State
+            if (ContractUI.Instance != null)
+                ContractUI.Instance.ClearInventory();
+
+            if (SkillTreeUI.Instance != null)
+                SkillTreeUI.Instance.Clear();
+
             if (AIConsole.Instance != null)
                 AIConsole.Instance.Clear();
         }
