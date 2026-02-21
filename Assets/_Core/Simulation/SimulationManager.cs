@@ -166,6 +166,13 @@ namespace Faust.Simulation
                             if (enemy.currentHealth <= 0)
                             {
                                 CombatEventBus.OnEnemyKilled?.Invoke(10f); // Grant flat XP
+                                
+                                // Organic 25% drop chance on death
+                                if (LootChestSpawner.Instance != null && UnityEngine.Random.value < 0.25f)
+                                {
+                                    LootChestSpawner.Instance.SpawnChestAt(enemy.Position);
+                                }
+                                
                                 enemy.VisualTransform.gameObject.SetActive(false);
                                 _enemyPool.Enqueue(enemy.VisualTransform);
                                 _activeEnemies.RemoveAt(j);
@@ -319,6 +326,22 @@ namespace Faust.Simulation
                         Direction = sweepFwd,
                         Context = context
                     });
+                    
+                    // Create Sweep Visualizer
+                    GameObject sweepVisual = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                    Destroy(sweepVisual.GetComponent<Collider>());
+                    sweepVisual.transform.position = sweepPos + (sweepFwd * (sweepRadius * 0.5f));
+                    sweepVisual.transform.forward = sweepFwd;
+                    // Flatten it into a disk
+                    sweepVisual.transform.localScale = new Vector3(sweepRadius, 0.1f, sweepRadius * 0.5f); 
+                    
+                    var svRender = sweepVisual.GetComponent<MeshRenderer>();
+                    if (svRender != null)
+                    {
+                        // Assign a transparent material if possible, or try our best
+                        svRender.material.color = new Color(0.8f, 0.9f, 1f, 0.5f); // Light blueish
+                    }
+                    StartCoroutine(FadeSweepVisualizer(sweepVisual, 0.2f));
 
                     for (int i = _activeEnemies.Count - 1; i >= 0; i--)
                     {
@@ -454,6 +477,26 @@ namespace Faust.Simulation
                 EnemyType = enemyType,
                 AttackCooldown = 2.0f // Initial cooldown for ranged
             });
+        }
+
+        private System.Collections.IEnumerator FadeSweepVisualizer(GameObject visual, float duration)
+        {
+            float elapsed = 0f;
+            Vector3 startScale = visual.transform.localScale;
+            Vector3 endScale = startScale * 1.5f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = elapsed / duration;
+                
+                // Expand slightly
+                visual.transform.localScale = Vector3.Lerp(startScale, endScale, t);
+                
+                yield return null;
+            }
+
+            Destroy(visual);
         }
     }
 

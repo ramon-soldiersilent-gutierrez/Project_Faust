@@ -100,13 +100,13 @@ namespace Faust.UI
         {
             float slotSize = 60f;
             float padding = 10f;
-            int numSlots = 6;
+            int numSlots = 2; // Streamlined to 2 slots
             
             float totalWidth = (slotSize * numSlots) + (padding * (numSlots - 1));
-            float startX = Screen.width / 2f - 120f; // Shift to right of HP globe
+            float startX = Screen.width / 2f - (totalWidth / 2f); // Centered
             float startY = Screen.height - slotSize - 20f;
 
-            string[] bindings = { "LMB", "RMB", "1", "2", "3", "4" };
+            string[] bindings = { "LMB", "RMB" };
 
             GUIStyle labelStyle = new GUIStyle(GUI.skin.label)
             {

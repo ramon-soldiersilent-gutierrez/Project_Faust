@@ -135,42 +135,100 @@ namespace Faust.UI
             GUILayout.BeginVertical(GUILayout.Width(280));
             GUILayout.Label("<color=cyan><b>Equipped Items</b></color>", richTextLabel);
             GUILayout.Space(5);
-            
-            DrawSlot("Weapon", _weaponSlot, richTextLabel);
+
+            DrawPoEItemSlot("Weapon", ref _weaponSlot, richTextLabel);
             if (_activeDropdownSlot == "Weapon") DrawDropdown("Weapon", ref _weaponSlot, richTextLabel);
-            
+
             GUILayout.Space(5);
-            DrawSlot("Armor", _armorSlot, richTextLabel);
+            DrawPoEItemSlot("Armor", ref _armorSlot, richTextLabel);
             if (_activeDropdownSlot == "Armor") DrawDropdown("Armor", ref _armorSlot, richTextLabel);
-            
+
             GUILayout.Space(5);
-            DrawSlot("Accessory", _accessorySlot, richTextLabel);
+            DrawPoEItemSlot("Accessory", ref _accessorySlot, richTextLabel);
             if (_activeDropdownSlot == "Accessory") DrawDropdown("Accessory", ref _accessorySlot, richTextLabel);
-            
+
             GUILayout.EndVertical();
             
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
 
-        private void DrawSlot(string slotName, ContractModel model, GUIStyle style)
+        private void DrawPoEItemSlot(string slotName, ref ContractModel model, GUIStyle style)
         {
-            GUILayout.BeginHorizontal(GUI.skin.box);
-            GUILayout.Label(slotName, GUILayout.Width(80));
+            GUILayout.BeginVertical(GUI.skin.box);
+            
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"<b>{slotName}</b>", GUILayout.Width(70));
             if (model == null)
             {
                 GUILayout.Label("<color=gray>Empty</color>", style);
             }
             else
             {
-                GUILayout.Label($"<color=green>{model.ItemName}</color> (+{(model.DamageModifier-1f)*100f}%)", style);
+                // RARE ITEM HEADER STYLE (Yellow/Gold color typical in PoE)
+                GUILayout.Label($"<color=#FFD700><b>{model.ItemName}</b></color>", style);
             }
-            
-            if (GUILayout.Button("Select", GUILayout.Width(60)))
+            if (GUILayout.Button("Eqp", GUILayout.Width(40)))
             {
                 _activeDropdownSlot = _activeDropdownSlot == slotName ? "" : slotName;
             }
             GUILayout.EndHorizontal();
+
+            if (model != null)
+            {
+                // Item Base Type and Flavor
+                GUILayout.Label($"<color=#888888><i>{model.SpriteKeyword.Replace('_', ' ')}</i></color>", style);
+                
+                // Divider
+                GUILayout.Label("<color=#555555>--------</color>", style);
+
+                // Modifiers (Magic/Blue)
+                if (model.DamageModifier != 1.0f)
+                {
+                    float pct = (model.DamageModifier - 1f) * 100f;
+                    string sign = pct > 0 ? "+" : "";
+                    GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% to Global Damage</color>", style);
+                }
+                
+                if (model.SpeedModifier != 1.0f)
+                {
+                    float pct = (model.SpeedModifier - 1f) * 100f;
+                    string sign = pct > 0 ? "+" : "";
+                    GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% increased Action Speed</color>", style);
+                }
+                
+                if (model.SizeModifier != 1.0f)
+                {
+                    float pct = (model.SizeModifier - 1f) * 100f;
+                    string sign = pct > 0 ? "+" : "";
+                    GUILayout.Label($"<color=#8888FF>{sign}{pct:F1}% increased Area of Effect</color>", style);
+                }
+                
+                // Granted Skills & Boons (Implicit or Explicit features)
+                if (!string.IsNullOrEmpty(model.GrantedSkillID))
+                {
+                    GUILayout.Label($"<color=#FFFFFF>Grants Skill: {model.GrantedSkillID}</color>", style);
+                }
+                
+                if (model.BoonNodeIDs != null && model.BoonNodeIDs.Length > 0)
+                {
+                    GUILayout.Label($"<color=#00FF00>Has Active Boon: {model.BoonNodeIDs[0]}</color>", style);
+                }
+                
+                if (model.CurseNodeIDs != null && model.CurseNodeIDs.Length > 0)
+                {
+                    GUILayout.Label($"<color=#FF0000>Cursed with: {model.CurseNodeIDs[0]}</color>", style);
+                }
+                
+                // Divider
+                GUILayout.Label("<color=#555555>--------</color>", style);
+                
+                // Flavor text (Unique/Orange/Brown vibe)
+                GUILayout.Label($"<color=#AF6025><i>\"{model.FlavorText}\"</i></color>", style);
+                GUILayout.Space(5);
+            }
+            
+            GUILayout.EndVertical();
         }
 
         private void DrawDropdown(string category, ref ContractModel equippedSlot, GUIStyle style)
@@ -185,7 +243,8 @@ namespace Faust.UI
                 if (item.EquipSlot == category)
                 {
                     hasItems = true;
-                    if (GUILayout.Button($"> {item.ItemName} (+{(item.DamageModifier-1f)*100f}%)"))
+                    // Yellow name for listing
+                    if (GUILayout.Button($"<color=#FFD700>{item.ItemName}</color>", style))
                     {
                         // Swap
                         if (equippedSlot != null) PlayerStash.Add(equippedSlot);

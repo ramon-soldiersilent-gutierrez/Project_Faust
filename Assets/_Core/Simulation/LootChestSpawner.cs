@@ -7,13 +7,14 @@ namespace Faust.Simulation
 {
     public class LootChestSpawner : MonoBehaviour
     {
+        public static LootChestSpawner Instance { get; private set; }
+
         [Header("Settings")]
-        public float SpawnInterval = 10.0f;
-        public float SpawnRadius = 15f;
+        public GameObject ChestPrefab; // User assigns chest_close.prefab
+        public float SpawnRadius = 1f; // Dispersion
         public Transform PlayerTransform;
         public float PickupRadius = 1.5f;
 
-        private float _spawnTimer;
         private List<ChestBody> _activeChests = new List<ChestBody>();
         private Queue<Transform> _chestPool = new Queue<Transform>();
 
@@ -25,16 +26,27 @@ namespace Faust.Simulation
 
         private void Awake()
         {
+            Instance = this;
+
             var root = new GameObject("LootChests_Pool").transform;
             for (int i = 0; i < 20; i++)
             {
-                var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                GameObject go;
+                if (ChestPrefab != null)
+                {
+                    go = Instantiate(ChestPrefab);
+                }
+                else
+                {
+                    // Fallback Primitive if empty
+                    go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    var renderer = go.GetComponent<MeshRenderer>();
+                    if (renderer != null) renderer.material.color = Color.yellow; // Chest color
+                }
+                
                 go.name = $"Chest_{i}";
                 go.transform.SetParent(root);
-                go.transform.localScale = new Vector3(0.8f, 0.5f, 0.8f);
-                
-                var renderer = go.GetComponent<MeshRenderer>();
-                if (renderer != null) renderer.material.color = Color.yellow; // Chest color
+                go.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f); // Scaled appropriately
                 
                 go.transform.position = new Vector3(0, 0.25f, 0);
                 if (go.GetComponent<Collider>() != null) Destroy(go.GetComponent<Collider>());
@@ -47,15 +59,40 @@ namespace Faust.Simulation
         {
             if (PlayerTransform == null) return;
             
-            float dt = Time.deltaTime;
-            _spawnTimer += dt;
-            if (_spawnTimer >= SpawnInterval)
-            {
-                _spawnTimer = 0f;
-                SpawnChest();
-            }
-
             // Distance-based pickup check
+            Vector3 playerPos = PlayerTransform.position;
+            for (int i = _activeChests.Count - 1; i >= 0; i--)
+            {
+                var chest = _activeChests[i];
+                if (Vector3.Distance(chest.Position, playerPos) <= PickupRadius)
+                {
+                    OpenChest();
+                    chest.VisualTransform.gameObject.SetActive(false);
+                    _chestPool.Enqueue(chest.VisualTransform);
+                    _activeChests.RemoveAt(i);
+                }
+            }
+        }
+
+        public void SpawnChestAt(Vector3 basePos)
+        {
+            if (_chestPool.Count == 0) return;
+            
+            float angle = Random.Range(0f, Mathf.PI * 2);
+            Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * SpawnRadius;
+            Vector3 spawnPos = basePos + offset;
+            spawnPos.y = 0.25f; 
+            
+            Transform cTrans = _chestPool.Dequeue();
+            cTrans.position = spawnPos;
+            cTrans.gameObject.SetActive(true);
+
+            _activeChests.Add(new ChestBody
+            {
+                Position = spawnPos,
+                VisualTransform = cTrans
+            });
+        }
             Vector3 playerPos = PlayerTransform.position;
             for (int i = _activeChests.Count - 1; i >= 0; i--)
             {
