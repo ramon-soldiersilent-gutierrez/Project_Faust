@@ -15,6 +15,13 @@ namespace Faust.Simulation
         [HideInInspector]
         public bool IsRooted = false;
 
+        [Header("Progression")]
+        public int StartingLevel = 1;
+        public int CurrentLevel = 1;
+        public float CurrentXP = 0f;
+        public float XPPerLevel = 50f;
+        public int SkillPoints = 0;
+
         [Header("Temp Default Skill")]
         public float BaseDamage = 10f;
         public float BaseProjectileSpeed = 20f;
@@ -30,6 +37,8 @@ namespace Faust.Simulation
 
             _mainCamera = Camera.main;
             CurrentHealth = MaxHealth;
+            CurrentLevel = StartingLevel;
+            SkillPoints = Mathf.Max(0, CurrentLevel - 1);
 
             var renderer = GetComponent<Renderer>();
             if (renderer != null)
@@ -40,12 +49,25 @@ namespace Faust.Simulation
 
         private void OnEnable()
         {
-            // Removed CombatEventBus subscription to prevent infinite loop recursion with hooks
+            CombatEventBus.OnEnemyKilled += HandleEnemyKilled;
         }
 
         private void OnDisable()
         {
-            // Removed CombatEventBus subscription
+            CombatEventBus.OnEnemyKilled -= HandleEnemyKilled;
+        }
+
+        private void HandleEnemyKilled(float xp)
+        {
+            CurrentXP += xp;
+            while (CurrentXP >= XPPerLevel)
+            {
+                CurrentXP -= XPPerLevel;
+                CurrentLevel++;
+                SkillPoints++;
+                CombatEventBus.OnLevelUp?.Invoke(CurrentLevel, SkillPoints);
+                Debug.Log($"Level Up! Now Level {CurrentLevel}");
+            }
         }
 
         private void Update()
@@ -137,6 +159,9 @@ namespace Faust.Simulation
         {
             transform.position = Vector3.zero;
             CurrentHealth = MaxHealth;
+            CurrentLevel = StartingLevel;
+            SkillPoints = Mathf.Max(0, CurrentLevel - 1);
+            CurrentXP = 0f;
             IsRooted = false;
         }
 
