@@ -9,8 +9,8 @@ namespace Faust.UI
         public static ContractUI Instance { get; private set; }
 
         [Header("IMGUI Settings")]
-        public Rect UIRect = new Rect(420, 10, 300, 200);
-        public Rect InventoryRect = new Rect(420, 220, 300, 120);
+        private Rect GetUIRect() => new Rect(Screen.width / 2f - 150f, 10, 300, 200);
+        private Rect GetInventoryRect() => new Rect(Screen.width / 2f - 150f, 220, 300, 120);
 
         private string _wishText = "I want infinite power";
         private float _greedValue = 50f;
@@ -59,7 +59,7 @@ namespace Faust.UI
 
         private void DrawForgeWindow()
         {
-            GUILayout.BeginArea(UIRect, "Faustian Forge", GUI.skin.window);
+            GUILayout.BeginArea(GetUIRect(), "Faustian Forge", GUI.skin.window);
 
             GUILayout.Label("Wish:");
             _wishText = GUILayout.TextField(_wishText);
@@ -82,7 +82,7 @@ namespace Faust.UI
 
         private void DrawInventoryWindow()
         {
-            GUILayout.BeginArea(InventoryRect, "Equipped Contracts", GUI.skin.window);
+            GUILayout.BeginArea(GetInventoryRect(), "Equipped Contracts", GUI.skin.window);
             
             GUIStyle richTextLabel = new GUIStyle(GUI.skin.label) { richText = true };
             

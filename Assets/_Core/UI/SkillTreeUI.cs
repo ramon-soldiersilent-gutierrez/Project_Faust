@@ -10,7 +10,7 @@ namespace Faust.UI
         public static SkillTreeUI Instance { get; private set; }
 
         [Header("IMGUI Settings")]
-        public Rect TreeRect = new Rect(730, 10, 400, 400);
+        private Rect GetTreeRect() => new Rect(Screen.width - 410f, 50f, 400, 400);
         public float NodeSpacing = 60f;
         public float NodeSize = 40f;
 
@@ -60,7 +60,7 @@ namespace Faust.UI
 
             if (_currentChunk == null)
             {
-                GUILayout.BeginArea(TreeRect, "Faustian Tree", GUI.skin.window);
+                GUILayout.BeginArea(GetTreeRect(), "Faustian Tree", GUI.skin.window);
                 GUILayout.Label("Skill Tree Empty.\nGenerate a tree to behold the Faustian Web.", new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter });
                 if (GUILayout.Button("Simulate Skill Tree Generation", GUILayout.Height(40)))
                 {
@@ -70,7 +70,7 @@ namespace Faust.UI
                 return;
             }
 
-            GUILayout.BeginArea(TreeRect, $"Faustian Tree: {_currentChunk.ChunkName}", GUI.skin.window);
+            GUILayout.BeginArea(GetTreeRect(), $"Faustian Tree: {_currentChunk.ChunkName}", GUI.skin.window);
             
             // Basic layout math for internal scroll view size
             float minX = 0, minY = 0, maxX = 0, maxY = 0;
