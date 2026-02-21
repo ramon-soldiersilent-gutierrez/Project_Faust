@@ -235,23 +235,26 @@ namespace Faust.UI
                     isAllocated = Faust.StatsAndHooks.HookLifecycleManager.Instance.AllocatedNodeIDs.Contains(node.NodeID);
                 }
 
-                // Colorize based on allocation or keystone
+                bool isAvailable = IsNodeAvailable(node);
+
+                // Colorize based on state
                 if (isAllocated)
                 {
                     GUI.backgroundColor = Color.yellow;
                 }
-                else if (node.IsKeystone)
+                else if (isAvailable)
                 {
-                    GUI.backgroundColor = Color.red;
+                    GUI.backgroundColor = node.IsKeystone ? Color.red : Color.white;
                 }
                 else
                 {
-                    GUI.backgroundColor = Color.white;
+                    // Dim unavailable nodes
+                    GUI.backgroundColor = node.IsKeystone ? new Color(0.5f, 0f, 0f, 0.5f) : new Color(0.5f, 0.5f, 0.5f, 0.5f);
                 }
                 
                 if (GUI.Button(nodeRect, node.NodeID, nodeStyle))
                 {
-                    if (!isAllocated && canAfford)
+                    if (isAvailable && canAfford)
                     {
                         if (Faust.StatsAndHooks.HookLifecycleManager.Instance != null)
                         {
@@ -291,6 +294,47 @@ namespace Faust.UI
         }
 
         private SkillTreeNode _hoveredNode;
+
+        private bool IsNodeAvailable(SkillTreeNode node)
+        {
+            if (Faust.StatsAndHooks.HookLifecycleManager.Instance == null) return false;
+            var allocated = Faust.StatsAndHooks.HookLifecycleManager.Instance.AllocatedNodeIDs;
+            
+            // Scenario 1: Node is already allocated
+            if (allocated.Contains(node.NodeID)) return false;
+
+            // Scenario 2: Nothing is allocated yet. Allow only the root node (the 0th node).
+            if (allocated.Count == 0)
+            {
+                return _currentChunk != null && _currentChunk.Nodes.Length > 0 && node.NodeID == _currentChunk.Nodes[0].NodeID;
+            }
+
+            // Scenario 3: Adjacency (outgoing edges from this node)
+            if (node.ConnectedNodeIDs != null)
+            {
+                foreach (var conn in node.ConnectedNodeIDs)
+                {
+                    if (allocated.Contains(conn)) return true;
+                }
+            }
+            
+            // Scenario 4: Adjacency (incoming edges from allocated nodes)
+            foreach (var allocId in allocated)
+            {
+                if (_nodeMap.TryGetValue(allocId, out var allocNode))
+                {
+                    if (allocNode.ConnectedNodeIDs != null)
+                    {
+                        foreach(var conn in allocNode.ConnectedNodeIDs)
+                        {
+                            if (conn == node.NodeID) return true;
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
 
         private void DrawNodeTooltip(SkillTreeNode node)
         {
