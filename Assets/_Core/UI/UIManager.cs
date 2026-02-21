@@ -57,6 +57,10 @@ namespace Faust.UI
                 bool willOpen = !SkillTreeUI.Instance.IsVisible;
                 if (willOpen) CloseAllMenus();
                 SkillTreeUI.Instance.IsVisible = willOpen;
+                if (ContractUI.Instance != null)
+                {
+                    ContractUI.Instance.IsInventoryVisible = willOpen;
+                }
             }
         }
 
