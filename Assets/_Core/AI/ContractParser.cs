@@ -22,6 +22,9 @@ namespace Faust.AI
         public RawContractNode[] boons;
         public RawContractNode[] curses;
         
+        public string equipSlot;
+        public string spriteKeyword;
+        
         // Include modifiers since they exist in ContractModel. 
         // The LLM will generate them.
         public float damageModifier = 1.0f;
@@ -66,6 +69,8 @@ namespace Faust.AI
             {
                 ItemName = string.IsNullOrEmpty(raw.itemName) ? "Unknown Item" : raw.itemName,
                 FlavorText = string.IsNullOrEmpty(raw.flavorText) ? "..." : raw.flavorText,
+                EquipSlot = string.IsNullOrEmpty(raw.equipSlot) ? "Weapon" : raw.equipSlot,
+                SpriteKeyword = string.IsNullOrEmpty(raw.spriteKeyword) ? "Sword_Dark" : raw.spriteKeyword,
             };
 
             // Enforce Skill Whitelist
