@@ -341,7 +341,7 @@ namespace Faust.Simulation
                         // Assign a transparent material if possible, or try our best
                         svRender.material.color = new Color(0.8f, 0.9f, 1f, 0.5f); // Light blueish
                     }
-                    StartCoroutine(FadeSweepVisualizer(sweepVisual, 0.2f));
+                    StartCoroutine(FadeSweepVisualizer(sweepVisual, 0.1f));
 
                     for (int i = _activeEnemies.Count - 1; i >= 0; i--)
                     {

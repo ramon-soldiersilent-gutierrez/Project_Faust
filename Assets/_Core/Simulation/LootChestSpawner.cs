@@ -78,9 +78,7 @@ namespace Faust.Simulation
         {
             if (_chestPool.Count == 0) return;
             
-            float angle = Random.Range(0f, Mathf.PI * 2);
-            Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * SpawnRadius;
-            Vector3 spawnPos = basePos + offset;
+            Vector3 spawnPos = basePos;
             spawnPos.y = 0.25f; 
             
             Transform cTrans = _chestPool.Dequeue();
