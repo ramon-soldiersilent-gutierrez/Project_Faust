@@ -36,8 +36,8 @@ namespace Faust.UI
                 HookLifecycleManager.Instance.ClearAllHooks();
 
             // 3. Purge all Simulation entities
-            if (SimulationManager.Instance != null)
-                SimulationManager.Instance.ClearAll();
+            if (Faust.Simulation.SimulationManager.Instance != null)
+                Faust.Simulation.SimulationManager.Instance.ResetAll();
 
             // 4. Restore Player Health/Pos
             PlayerContext.Reset();
