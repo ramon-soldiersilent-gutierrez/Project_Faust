@@ -114,7 +114,7 @@ Mortal's Equipped Skills: {currentSkills}
 Mortal's Theme Preference: ""{theme}""
 
 Rules:
-1. Generate 15-30 nodes. Node 0 is at (0,0).
+1. Generate 5-10 nodes. Node 0 is at (0,0).
 2. Every node MUST have at least 1 `connectedNodeIDs`.
 3. 20% MUST be `isKeystone`: true, and grant 1-2 boons and 1-2 curses.
 Respond ONLY with valid JSON matching this schema:
