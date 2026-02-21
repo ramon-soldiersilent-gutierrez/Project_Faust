@@ -73,3 +73,6 @@ crashlytics-build.properties
 
 # Ignore the path of building submodule folder
 /[Pp][Oo][Bb]/
+
+# Agent Prompt Files
+
