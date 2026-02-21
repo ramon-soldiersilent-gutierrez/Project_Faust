@@ -53,14 +53,28 @@ namespace Faust.UI
 
         public void LoadChunk(SkillTreeChunk chunk)
         {
-            _currentChunk = chunk;
-            _nodeMap.Clear();
-            if (chunk != null)
+            if (chunk == null) return;
+            
+            if (_currentChunk == null)
             {
-                foreach (var node in chunk.Nodes)
-                {
-                    _nodeMap[node.NodeID] = node;
-                }
+                _currentChunk = chunk;
+            }
+            else
+            {
+                _currentChunk.ChunkName += " & " + chunk.ChunkName;
+                
+                // Append nodes array
+                var newNodes = new List<SkillTreeNode>(_currentChunk.Nodes);
+                newNodes.AddRange(chunk.Nodes);
+                _currentChunk.Nodes = newNodes.ToArray();
+            }
+
+            foreach (var node in chunk.Nodes)
+            {
+                // Prefix ID to prevent overlapping IDs on new chunks if Gemini resets to 0
+                string safeID = _currentChunk.Nodes.Length + "_" + node.NodeID;
+                node.NodeID = safeID; 
+                _nodeMap[node.NodeID] = node;
             }
             
             // Notify player instead of forcing menu open

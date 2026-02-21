@@ -13,6 +13,14 @@ namespace Faust.AI
         [SerializeField] private int timeoutSeconds = 60;
 
         private GeminiClient _client;
+        
+        // Skill Tree Appending State
+        private bool _isGeneratingTree = false;
+        private int _pendingTreeRequests = 0;
+        
+        private int _currentAnchorX = 0;
+        private int _currentAnchorY = 0;
+        private string _currentAnchorNodeID = null;
 
         private void Awake()
         {
@@ -66,7 +74,15 @@ namespace Faust.AI
 
         public async void RequestSkillTreeChunk(int playerLevel, string currentSkills, string theme, Action<SkillTreeChunk> onComplete)
         {
-            Log($"AI Skill Tree requested: Theme='{theme}'");
+            if (_isGeneratingTree)
+            {
+                Log("Skill tree generation already in progress. Queuing request...");
+                _pendingTreeRequests++;
+                return;
+            }
+
+            _isGeneratingTree = true;
+            Log($"AI Skill Tree requested: Theme='{theme}', Anchor=({_currentAnchorX},{_currentAnchorY})");
 
             string systemPrompt = BuildSkillTreeSystemPrompt(playerLevel, currentSkills, theme);
             string userPrompt = $"Generate a new skill tree chunk with the theme: '{theme}'";
@@ -77,13 +93,47 @@ namespace Faust.AI
                 Log($"Skill Tree JSON received:\n{jsonResponse}");
 
                 SkillTreeChunk chunk = SkillTreeParser.ParseAndValidate(jsonResponse, this);
+                UpdateAnchor(chunk);
                 onComplete?.Invoke(chunk);
             }
             catch (Exception e)
             {
                 LogError($"Skill Tree API or Parse Failed: {e.Message}. Falling back.");
-                onComplete?.Invoke(FallbackCompiler.GenerateSafeSkillTreeChunk(theme));
+                SkillTreeChunk fallback = FallbackCompiler.GenerateSafeSkillTreeChunk(theme);
+                UpdateAnchor(fallback);
+                onComplete?.Invoke(fallback);
             }
+            finally
+            {
+                _isGeneratingTree = false;
+                if (_pendingTreeRequests > 0)
+                {
+                    _pendingTreeRequests--;
+                    RequestSkillTreeChunk(playerLevel + 1, currentSkills, theme, onComplete);
+                }
+            }
+        }
+
+        private void UpdateAnchor(SkillTreeChunk chunk)
+        {
+            if (chunk == null || chunk.Nodes == null || chunk.Nodes.Length == 0) return;
+            
+            // Find the lowest Y node to act as the next anchor point
+            int maxY = int.MinValue;
+            SkillTreeNode bottomNode = chunk.Nodes[0];
+
+            foreach (var n in chunk.Nodes)
+            {
+                if (n.GridY > maxY)
+                {
+                    maxY = n.GridY;
+                    bottomNode = n;
+                }
+            }
+
+            _currentAnchorX = bottomNode.GridX;
+            _currentAnchorY = bottomNode.GridY;
+            _currentAnchorNodeID = bottomNode.NodeID;
         }
 
         private string BuildContractSystemPrompt(string wish, float greed)
@@ -108,14 +158,18 @@ You must return only raw JSON matching this literal schema exactly without any m
 
     private string BuildSkillTreeSystemPrompt(int playerLevel, string currentSkills, string theme)
         {
+            string anchorRule = string.IsNullOrEmpty(_currentAnchorNodeID) 
+                ? "1. Generate 5-10 nodes. Node 0 is at (0,0)." 
+                : $"1. Generate 5-10 nodes. Node 0 MUST be placed exactly at ({_currentAnchorX}, {_currentAnchorY + 1}) and MUST include \"{_currentAnchorNodeID}\" in its `connectedNodeIDs` to attach to the existing tree. Expand downwards (positive Y values > {_currentAnchorY}).";
+
             return $@"You are the Faustian Forge. Generate a new 2D web of Skill Tree Nodes.
 Mortal's Current Level: {playerLevel}
 Mortal's Equipped Skills: {currentSkills}
 Mortal's Theme Preference: ""{theme}""
 
 Rules:
-1. Generate 5-10 nodes. Node 0 is at (0,0).
-2. Every node MUST have at least 1 `connectedNodeIDs`.
+{anchorRule}
+2. Every node MUST have at least 1 `connectedNodeIDs`. Nodes can branch, but must not exceed 5 connections.
 3. 20% MUST be `isKeystone`: true, and grant 1-2 boons and 1-2 curses.
 Respond ONLY with valid JSON matching this schema:
 {{
