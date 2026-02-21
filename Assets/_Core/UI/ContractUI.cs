@@ -11,7 +11,7 @@ namespace Faust.UI
 
         // IMGUI Settings
         private Rect GetUIRect() => new Rect(Screen.width / 2f - 150f, 10, 300, 200);
-        private Rect GetCharacterSheetRect() => new Rect(Screen.width / 2f - 300f, 150, 600, 500);
+        private Rect GetCharacterSheetRect() => new Rect(10f, 100f, 600, 500);
 
         private string _wishText = "I want infinite power";
         private float _greedValue = 50f;

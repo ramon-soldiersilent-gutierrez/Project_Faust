@@ -69,11 +69,31 @@ namespace Faust.UI
                 _currentChunk.Nodes = newNodes.ToArray();
             }
 
+            // Pass 1: Map old IDs to safe prefixed IDs
+            Dictionary<string, string> idRemap = new Dictionary<string, string>();
+            int prefix = _currentChunk == null ? 0 : _currentChunk.Nodes.Length;
+
             foreach (var node in chunk.Nodes)
             {
-                // Prefix ID to prevent overlapping IDs on new chunks if Gemini resets to 0
-                string safeID = _currentChunk.Nodes.Length + "_" + node.NodeID;
-                node.NodeID = safeID; 
+                string safeID = prefix + "_" + node.NodeID;
+                idRemap[node.NodeID] = safeID;
+                node.NodeID = safeID;
+            }
+
+            // Pass 2: Remap internal connections, preserve external anchors
+            foreach (var node in chunk.Nodes)
+            {
+                if (node.ConnectedNodeIDs != null)
+                {
+                    for (int i = 0; i < node.ConnectedNodeIDs.Length; i++)
+                    {
+                        string target = node.ConnectedNodeIDs[i];
+                        if (idRemap.ContainsKey(target))
+                        {
+                            node.ConnectedNodeIDs[i] = idRemap[target];
+                        }
+                    }
+                }
                 _nodeMap[node.NodeID] = node;
             }
             
